@@ -1,0 +1,4 @@
+package com.example.rincon_verde2.ui.feature.placelist
+
+class PlaceListScreen {
+}
