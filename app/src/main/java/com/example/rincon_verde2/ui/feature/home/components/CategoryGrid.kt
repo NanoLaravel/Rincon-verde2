@@ -61,7 +61,7 @@ fun CategoriesSection(
       items(categoryConfig.filter { it.key != PlaceCategory.FAVORITES }.entries.toList()) { (category, config) ->
         CategoryItem(
           config = config,
-          onClick = { /*onCategoryClick(category)*/ }
+          onClick = { onCategoryClick(category) }
         )
       }
 
