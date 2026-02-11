@@ -1,2 +1,20 @@
 package com.example.rincon_verde2.ui.navigation
 
+sealed class Screen(val route: String) {
+  data object Splash : Screen("splash")
+  data object Auth : Screen("auth/{mode}") {
+    fun createRoute(mode: String = "login") = "auth/$mode"
+  }
+  data object Home : Screen("home")
+  data object Search : Screen("search")
+  data object PlaceList : Screen("placeList/{category}") {
+    fun createRoute(category: String) = "placeList/$category"
+  }
+  data object PlaceDetail : Screen("placeDetail/{placeId}") {
+    fun createRoute(placeId: String) = "placeDetail/$placeId"
+  }
+  data object Filters : Screen("filters")
+  data object Favorites : Screen("favorites")
+  data object Profile : Screen("profile")
+  data object EditProfile : Screen("editProfile")
+}
