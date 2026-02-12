@@ -159,8 +159,7 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
       )
     }
 
-    if (isAuthenticated.value) {
-      composable(Screen.Home.route) {
+    composable(Screen.Home.route) {
         RinconVerdeScaffold(navController = navController, currentRoute = Screen.Home.route) {
           HomeScreen(
             places = samplePlaces,
@@ -273,7 +272,6 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
           onNavigateBack = { navController.navigateUp() }
         )
       }
-    }
   }
 }
 
