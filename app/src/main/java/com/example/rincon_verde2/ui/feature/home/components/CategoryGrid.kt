@@ -34,8 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.rincon_verde2.ui.feature.home.CategoryConfig
-import com.example.rincon_verde2.ui.feature.home.Event
-import com.example.rincon_verde2.ui.feature.home.PlaceCategory
+import com.example.rincon_verde2.domain.model.Event
+import com.example.rincon_verde2.domain.model.PlaceCategory
 
 @Composable
 fun CategoriesSection(

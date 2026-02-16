@@ -1,5 +1,8 @@
 package com.example.rincon_verde2.ui.feature.home
 
+import com.example.rincon_verde2.domain.model.Place
+import com.example.rincon_verde2.domain.model.Event
+import com.example.rincon_verde2.domain.model.PlaceCategory
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,32 +56,11 @@ import coil.compose.AsyncImage
 import com.example.rincon_verde2.ui.feature.home.components.*
 
 // Data classes
-data class Place(
-  val id: String,
-  val name: String,
-  val rating: Float,
-  val imageUrl: String,
-  val category: PlaceCategory,
-  val location: String
-)
-
-data class Event(
-  val id: String,
-  val title: String,
-  val date: String,
-  val location: String,
-  val image: String
-)
-
 data class CategoryConfig(
   val title: String,
   val icon: ImageVector,
   val color: Color
 )
-
-enum class PlaceCategory {
-  ACTIVITY, EAT, STAY, FAVORITES
-}
 
 @Composable
 fun HomeScreen(

@@ -18,10 +18,10 @@ import com.example.rincon_verde2.domain.model.User
 import com.example.rincon_verde2.ui.components.RinconVerdeBottomBar
 import com.example.rincon_verde2.ui.feature.auth.AuthScreen
 import com.example.rincon_verde2.ui.feature.filter.FilterSheet
-import com.example.rincon_verde2.ui.feature.home.Event
+import com.example.rincon_verde2.domain.model.Event
 import com.example.rincon_verde2.ui.feature.home.HomeScreen
-import com.example.rincon_verde2.ui.feature.home.Place
-import com.example.rincon_verde2.ui.feature.home.PlaceCategory
+import com.example.rincon_verde2.domain.model.Place
+import com.example.rincon_verde2.domain.model.PlaceCategory
 import com.example.rincon_verde2.ui.feature.placelist.PlaceListScreen
 import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetailScreen
 import com.example.rincon_verde2.ui.feature.placedetail.model.Amenity
@@ -43,50 +43,80 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
       Place(
         id = "1",
         name = "Restaurante Bella Italia",
+        description = "Auténtica cocina italiana con ingredientes importados",
         rating = 4.8f,
         imageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
         category = PlaceCategory.EAT,
-        location = "Centro Histórico"
+        location = "Centro Histórico",
+        reviewCount = 342,
+        phone = "+57 (1) 1234-5678",
+        address = "Carrera 5 #12-45",
+        hours = "12:00 PM - 10:00 PM"
       ),
       Place(
         id = "2",
         name = "Hotel Paraíso Resort",
+        description = "Resort de lujo con spa y piscina olímpica",
         rating = 4.6f,
         imageUrl = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop",
         category = PlaceCategory.STAY,
-        location = "Zona Turística"
+        location = "Zona Turística",
+        reviewCount = 298,
+        phone = "+57 (1) 2345-6789",
+        address = "Avenida Turística #100",
+        hours = "24 Horas"
       ),
       Place(
         id = "3",
         name = "Senderismo en Montaña",
+        description = "Rutas guiadas con vistas panorámicas de la cordillera",
         rating = 4.7f,
         imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
         category = PlaceCategory.ACTIVITY,
-        location = "Parque Nacional"
+        location = "Parque Nacional",
+        reviewCount = 256,
+        phone = "+57 (1) 3456-7890",
+        address = "Entrada Parque Nacional km 30",
+        hours = "6:00 AM - 5:00 PM"
       ),
       Place(
         id = "4",
         name = "Café Artesanal Sunrise",
+        description = "Café especializado en café de origen con ambiente bohemio",
         rating = 4.5f,
         imageUrl = "https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=400&h=300&fit=crop",
         category = PlaceCategory.EAT,
-        location = "La Candelaria"
+        location = "La Candelaria",
+        reviewCount = 187,
+        phone = "+57 (1) 4567-8901",
+        address = "Calle 11 #5-25",
+        hours = "7:00 AM - 9:00 PM"
       ),
       Place(
         id = "5",
         name = "Hostal Viajeros Felices",
+        description = "Hostal con ambiente social ideal para mochileros",
         rating = 4.4f,
         imageUrl = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop",
         category = PlaceCategory.STAY,
-        location = "Centro"
+        location = "Centro",
+        reviewCount = 421,
+        phone = "+57 (1) 5678-9012",
+        address = "Carrera 10 #15-60",
+        hours = "24 Horas"
       ),
       Place(
         id = "6",
         name = "Ciclopaseo Urbano",
+        description = "Recorrido dominical seguro por la ciclovía con paradas gastronómicas",
         rating = 4.9f,
         imageUrl = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop",
         category = PlaceCategory.ACTIVITY,
-        location = "Ciclovía Bogotá"
+        location = "Ciclovía Bogotá",
+        reviewCount = 512,
+        phone = "+57 (1) 6789-0123",
+        address = "Carrera 7 zona ciclovía",
+        hours = "7:00 AM - 2:00 PM (Domingos)"
       )
     )
   }
@@ -98,6 +128,7 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
         title = "Festival de Gastronomía 2024",
         date = "15 de Marzo",
         location = "Parque Central",
+        description = "descripcion falsa",
         image = "https://images.unsplash.com/photo-1555939594-58d7cb561c1a?w=400&h=300&fit=crop"
       ),
       Event(
@@ -105,6 +136,7 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
         title = "Exposición de Arte Contemporáneo",
         date = "20 de Marzo",
         location = "Museo de Arte",
+        description = "descripcion falsa",
         image = "https://images.unsplash.com/photo-1561214115-6d2f1b0609fa?w=400&h=300&fit=crop"
       ),
       Event(
@@ -112,6 +144,7 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
         title = "Concierto al Aire Libre",
         date = "25 de Marzo",
         location = "Plaza Mayor",
+        description = "descripcion falsa",
         image = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=300&fit=crop"
       )
     )

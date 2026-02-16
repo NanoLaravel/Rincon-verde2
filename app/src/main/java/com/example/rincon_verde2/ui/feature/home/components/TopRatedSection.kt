@@ -1,5 +1,7 @@
 package com.example.rincon_verde2.ui.feature.home.components
 
+import com.example.rincon_verde2.domain.model.PlaceCategory
+import com.example.rincon_verde2.domain.model.Place
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.example.rincon_verde2.ui.feature.home.Place
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.remember
 
@@ -162,8 +163,8 @@ fun TopRatedCard(
 @Composable
 fun TopRatedSectionPreview() {
   val sample = listOf(
-    com.example.rincon_verde2.ui.feature.home.Place("1","Restaurante Prueba",4.6f, "", com.example.rincon_verde2.ui.feature.home.PlaceCategory.EAT, "Ciudad"),
-    com.example.rincon_verde2.ui.feature.home.Place("2","Hotel Prueba",4.2f, "", com.example.rincon_verde2.ui.feature.home.PlaceCategory.STAY, "Ciudad")
+    Place(id = "1", name = "Restaurante Prueba", description = "Comida deliciosa", rating = 4.6f, imageUrl = "", category = PlaceCategory.EAT, location = "Ciudad", reviewCount = 120, phone = "+57 123", address = "Dirección", hours = "12-10"),
+    Place(id = "2", name = "Hotel Prueba", description = "Hotel cómodo", rating = 4.2f, imageUrl = "", category = PlaceCategory.STAY, location = "Ciudad", reviewCount = 85, phone = "+57 456", address = "Dirección 2", hours = "24H")
   )
   TopRatedSection(places = sample, onPlaceClick = {}, modifier = Modifier)
 }

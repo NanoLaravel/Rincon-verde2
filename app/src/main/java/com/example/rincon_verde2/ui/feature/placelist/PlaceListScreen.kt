@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.rincon_verde2.ui.components.PlaceCard
-import com.example.rincon_verde2.ui.feature.home.Place
-import com.example.rincon_verde2.ui.feature.home.PlaceCategory
+import com.example.rincon_verde2.domain.model.Place
+import com.example.rincon_verde2.domain.model.PlaceCategory
 import com.example.rincon_verde2.ui.feature.placelist.components.CategoryHeader
 import com.example.rincon_verde2.ui.feature.placelist.components.PlaceListHeader
 import com.example.rincon_verde2.ui.feature.placelist.components.ResultsCounter
@@ -146,34 +146,54 @@ fun PlaceListScreenPreview() {
     Place(
       id = "1",
       name = "Senderismo Montaña",
+      description = "Caminata guiada por senderos montañosos con vistas panorámicas",
       rating = 4.8f,
       imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
       category = PlaceCategory.ACTIVITY,
-      location = "Sierra de Rincón"
+      location = "Sierra de Rincón",
+      reviewCount = 298,
+      phone = "+57 (1) 7890-1234",
+      address = "Entrada Sierra de Rincón km 15",
+      hours = "7:00 AM - 5:00 PM"
     ),
     Place(
       id = "2",
       name = "Parapente",
+      description = "Vuelo en parapente con instructores certificados",
       rating = 4.6f,
       imageUrl = "https://images.unsplash.com/photo-1544551763-46a013bb70d5",
       category = PlaceCategory.ACTIVITY,
-      location = "Las Alturas"
+      location = "Las Alturas",
+      reviewCount = 187,
+      phone = "+57 (1) 8901-2345",
+      address = "Las Alturas - Zona de vuelo",
+      hours = "9:00 AM - 4:00 PM"
     ),
     Place(
       id = "3",
       name = "Kayaking",
+      description = "Navegación en kayak por aguas tranquilas del río",
       rating = 4.5f,
       imageUrl = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
       category = PlaceCategory.ACTIVITY,
-      location = "Río Verde"
+      location = "Río Verde",
+      reviewCount = 245,
+      phone = "+57 (1) 9012-3456",
+      address = "Embarcadero Río Verde",
+      hours = "8:00 AM - 6:00 PM"
     ),
     Place(
       id = "4",
       name = "Escalada",
+      description = "Escalada en roca con equipo seguro y guías expertos",
       rating = 4.7f,
       imageUrl = "https://images.unsplash.com/photo-1522163182902-8424ffd6e5d5",
       category = PlaceCategory.ACTIVITY,
-      location = "Cañón Rojo"
+      location = "Cañón Rojo",
+      reviewCount = 312,
+      phone = "+57 (1) 0123-4567",
+      address = "Cañón Rojo - Paredes de escalada",
+      hours = "8:00 AM - 5:00 PM"
     )
   )
 

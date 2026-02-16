@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.rincon_verde2.ui.feature.home.Place
+import com.example.rincon_verde2.domain.model.Place
 
 @Composable
 fun PlaceCard(
