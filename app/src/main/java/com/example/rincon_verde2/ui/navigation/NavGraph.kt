@@ -24,10 +24,10 @@ import com.example.rincon_verde2.domain.model.Place
 import com.example.rincon_verde2.domain.model.PlaceCategory
 import com.example.rincon_verde2.ui.feature.placelist.PlaceListScreen
 import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetailScreen
-import com.example.rincon_verde2.ui.feature.placedetail.model.Amenity
-import com.example.rincon_verde2.ui.feature.placedetail.model.ContactInfo
-import com.example.rincon_verde2.ui.feature.placedetail.model.PlaceDetail
-import com.example.rincon_verde2.ui.feature.placedetail.model.Review
+import com.example.rincon_verde2.ui.feature.placedetail.Amenity
+import com.example.rincon_verde2.ui.feature.placedetail.ContactInfo
+import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetail
+import com.example.rincon_verde2.ui.feature.placedetail.Review
 import com.example.rincon_verde2.ui.feature.profile.ProfileScreen
 import com.example.rincon_verde2.ui.feature.search.SearchScreen
 import com.example.rincon_verde2.ui.feature.splash.SplashScreen

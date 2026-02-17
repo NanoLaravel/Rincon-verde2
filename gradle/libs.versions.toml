@@ -25,6 +25,7 @@ coil = "2.7.0"
 retrofit = "3.0.0"
 okhttp = "5.3.2"
 datastore = "1.2.0"
+kotlinx-serialization = "1.6.2"
 
 # Testing
 junitExt = "1.1.5"
@@ -68,7 +69,9 @@ hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", ve
 # Network
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 # Image Loading
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
@@ -120,7 +123,9 @@ compose-debug = [
 network = [
   "retrofit",
   "retrofit-converter-gson",
-  "okhttp-logging-interceptor"
+  "retrofit-converter-kotlinx-serialization",
+  "okhttp-logging-interceptor",
+  "kotlinx-serialization"
 ]
 
 lifecycle = [

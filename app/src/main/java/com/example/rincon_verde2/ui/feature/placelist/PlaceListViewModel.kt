@@ -2,13 +2,16 @@ package com.example.rincon_verde2.ui.feature.placelist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rincon_verde2.data.repository.PlaceRepository
 import com.example.rincon_verde2.domain.model.Place
 import com.example.rincon_verde2.domain.model.PlaceCategory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class PlaceListUiState(
   val isLoading: Boolean = false,
@@ -16,7 +19,10 @@ data class PlaceListUiState(
   val places: List<Place> = emptyList()
 )
 
-class PlaceListViewModel : ViewModel() {
+@HiltViewModel
+class PlaceListViewModel @Inject constructor(
+  private val placeRepository: PlaceRepository
+) : ViewModel() {
   private val _uiState = MutableStateFlow(PlaceListUiState(isLoading = true))
   val uiState: StateFlow<PlaceListUiState> = _uiState.asStateFlow()
 

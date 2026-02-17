@@ -22,10 +22,6 @@ import com.example.rincon_verde2.ui.feature.placedetail.components.DetailHeader
 import com.example.rincon_verde2.ui.feature.placedetail.components.HeroImage
 import com.example.rincon_verde2.ui.feature.placedetail.components.PlaceTitleSection
 import com.example.rincon_verde2.ui.feature.placedetail.components.RecentReviewsSection
-import com.example.rincon_verde2.ui.feature.placedetail.model.Amenity
-import com.example.rincon_verde2.ui.feature.placedetail.model.ContactInfo
-import com.example.rincon_verde2.ui.feature.placedetail.model.PlaceDetail
-import com.example.rincon_verde2.ui.feature.placedetail.model.Review
 
 @Composable
 fun PlaceDetailScreen(
