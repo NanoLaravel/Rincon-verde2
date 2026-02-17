@@ -24,7 +24,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "rincon_verde_db"
         )
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
 
@@ -35,4 +35,8 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideEventDao(database: AppDatabase) = database.eventDao()
+
+    @Singleton
+    @Provides
+    fun provideUserDao(database: AppDatabase) = database.userDao()
 }
