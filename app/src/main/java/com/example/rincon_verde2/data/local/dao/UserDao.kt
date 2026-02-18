@@ -30,6 +30,13 @@ interface UserDao {
     fun getUserByIdFlow(userId: String): Flow<UserEntity?>
 
     /**
+     * Get any user (first) stored locally. Useful for retrieving current user when
+     * only one user is stored on device.
+     */
+    @Query("SELECT * FROM users LIMIT 1")
+    suspend fun getAnyUser(): UserEntity?
+
+    /**
      * Update user information
      */
     @Update

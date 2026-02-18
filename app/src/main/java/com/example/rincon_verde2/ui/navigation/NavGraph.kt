@@ -7,8 +7,11 @@ import androidx.compose.material.icons.filled.Pool
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,6 +23,7 @@ import com.example.rincon_verde2.ui.feature.auth.AuthScreen
 import com.example.rincon_verde2.ui.feature.filter.FilterSheet
 import com.example.rincon_verde2.domain.model.Event
 import com.example.rincon_verde2.ui.feature.home.HomeScreen
+import com.example.rincon_verde2.ui.feature.placelist.PlaceListViewModel
 import com.example.rincon_verde2.domain.model.Place
 import com.example.rincon_verde2.domain.model.PlaceCategory
 import com.example.rincon_verde2.ui.feature.placelist.PlaceListScreen
@@ -194,13 +198,20 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
 
     composable(Screen.Home.route) {
         RinconVerdeScaffold(navController = navController, currentRoute = Screen.Home.route) {
+          val viewModel: HomeViewModel = hiltViewModel()
+          val uiState = viewModel.uiState.collectAsState()
+          
+          LaunchedEffect(Unit) {
+            viewModel.loadPlaces()
+          }
+          
           HomeScreen(
-            places = samplePlaces,
-            events = sampleEvents,
-            favorites = samplePlaces.take(3),
+            places = uiState.value.places,
+            events = uiState.value.events,
+            favorites = uiState.value.favorites,
             onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) },
             onCategoryClick = { navController.navigate(Screen.PlaceList.createRoute(it.name)) },
-            onToggleFavorite = { },
+            onToggleFavorite = { viewModel.toggleFavorite(it) },
             onFilterClick = { navController.navigate(Screen.Filters.route) },
             onNavigate = { navController.navigate(it) }
           )
@@ -248,9 +259,16 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
       ) {
         val category = it.arguments?.getString("category")?.let { PlaceCategory.valueOf(it) }
           ?: PlaceCategory.ACTIVITY
+        val viewModel: PlaceListViewModel = hiltViewModel()
+        val uiState = viewModel.uiState.collectAsState()
+        
+        LaunchedEffect(category) {
+          viewModel.loadPlacesByCategory(category)
+        }
+        
         PlaceListScreen(
           category = category,
-          places = samplePlaces.filter { p -> p.category == category },
+          places = uiState.value.places,
           onBackClick = { navController.navigateUp() },
           onFilterClick = { navController.navigate(Screen.Filters.route) },
           onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) }

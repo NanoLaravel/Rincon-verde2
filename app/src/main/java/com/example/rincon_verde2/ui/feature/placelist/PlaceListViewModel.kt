@@ -6,7 +6,6 @@ import com.example.rincon_verde2.data.repository.PlaceRepository
 import com.example.rincon_verde2.domain.model.Place
 import com.example.rincon_verde2.domain.model.PlaceCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,39 +26,45 @@ class PlaceListViewModel @Inject constructor(
   val uiState: StateFlow<PlaceListUiState> = _uiState.asStateFlow()
 
   fun loadPlaces() {
-    // For now load fake / mock data to make UI preview and dev easier
     viewModelScope.launch {
-      _uiState.value = PlaceListUiState(isLoading = true)
-      delay(300) // simulate loading
-      val sample = listOf(
-        Place(
-          id = "1",
-          name = "Cafetería Central",
-          description = "Cafetería especializada en cafés de origen y pasteles",
-          rating = 4.5f,
-          imageUrl = "",
-          category = PlaceCategory.EAT,
-          location = "Centro",
-          reviewCount = 156,
-          phone = "+57 (1) 1111-2222",
-          address = "Carrera 8 #10-25",
-          hours = "7:00 AM - 8:00 PM"
-        ),
-        Place(
-          id = "2",
-          name = "Hotel Paraíso",
-          description = "Hotel 4 estrellas con piscina y restaurante",
-          rating = 4.7f,
-          imageUrl = "",
-          category = PlaceCategory.STAY,
-          location = "Zona Turística",
-          reviewCount = 203,
-          phone = "+57 (1) 3333-4444",
-          address = "Avenida Turística #50",
-          hours = "24 Horas"
+      try {
+        _uiState.value = PlaceListUiState(isLoading = true)
+        
+        // Load from repository (API with Room fallback)
+        val places = placeRepository.getPlaces()
+        
+        _uiState.value = PlaceListUiState(
+          isLoading = false,
+          places = places
         )
-      )
-      _uiState.value = PlaceListUiState(isLoading = false, places = sample)
+      } catch (e: Exception) {
+        _uiState.value = PlaceListUiState(
+          isLoading = false,
+          error = e.message ?: "Error al cargar lugares"
+        )
+      }
+    }
+  }
+
+  fun loadPlacesByCategory(category: PlaceCategory) {
+    viewModelScope.launch {
+      try {
+        _uiState.value = PlaceListUiState(isLoading = true)
+        
+        // Load all places and filter by category
+        val places = placeRepository.getPlaces()
+        val filteredPlaces = places.filter { it.category == category }
+        
+        _uiState.value = PlaceListUiState(
+          isLoading = false,
+          places = filteredPlaces
+        )
+      } catch (e: Exception) {
+        _uiState.value = PlaceListUiState(
+          isLoading = false,
+          error = e.message ?: "Error al cargar lugares"
+        )
+      }
     }
   }
 }

@@ -12,7 +12,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor() : ViewModel() {
+class ProfileViewModel @Inject constructor(
+    private val userRepository: com.example.rincon_verde2.data.repository.UserRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -26,23 +28,25 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-                // Simular carga desde base de datos
-                delay(800)
+                _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-                val mockUser = User(
-                    id = userId,
-                    email = "usuario@example.com",
-                    displayName = "Juan Perez",
-                    favoriteCount = 12,
-                    reviewCount = 8
-                )
+                val result = userRepository.getCurrentUser()
 
-                _uiState.value = _uiState.value.copy(
-                    user = mockUser,
-                    isLoading = false,
-                    favoriteCount = mockUser.favoriteCount,
-                    reviewCount = mockUser.reviewCount
-                )
+                if (result.isSuccess) {
+                    val user = result.getOrNull()
+                    if (user != null) {
+                        _uiState.value = _uiState.value.copy(
+                            user = user,
+                            isLoading = false,
+                            favoriteCount = user.favoriteCount,
+                            reviewCount = user.reviewCount
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = "Usuario no encontrado")
+                    }
+                } else {
+                    _uiState.value = _uiState.value.copy(isLoading = false, error = result.exceptionOrNull()?.message ?: "Error al cargar perfil")
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -57,20 +61,26 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
             try {
                 _uiState.value = _uiState.value.copy(isSaving = true, error = null)
 
-                // Simular guardado
-                delay(1200)
-
                 val currentUser = _uiState.value.user ?: return@launch
                 val updatedUser = currentUser.copy(
                     displayName = displayName,
                     email = email
                 )
 
-                _uiState.value = _uiState.value.copy(
-                    user = updatedUser,
-                    isSaving = false,
-                    updateSuccess = true
-                )
+                val result = userRepository.updateProfile(updatedUser)
+
+                if (result.isSuccess) {
+                    _uiState.value = _uiState.value.copy(
+                        user = result.getOrThrow(),
+                        isSaving = false,
+                        updateSuccess = true
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isSaving = false,
+                        error = result.exceptionOrNull()?.message ?: "Error al actualizar perfil"
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
@@ -86,9 +96,5 @@ class ProfileViewModel @Inject constructor() : ViewModel() {
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
-    }
-
-    fun clearUpdateSuccess() {
-        _uiState.value = _uiState.value.copy(updateSuccess = false)
     }
 }

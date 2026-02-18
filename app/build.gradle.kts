@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinKapt)
     alias(libs.plugins.hiltAndroid)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -82,6 +83,9 @@ dependencies {
   implementation(libs.hilt.android)
   implementation(libs.hilt.navigation.compose)
   kapt(libs.hilt.compiler)
+
+  // Room
+  kapt(libs.room.compiler)
 
   // Network Bundle
   implementation(libs.bundles.network)

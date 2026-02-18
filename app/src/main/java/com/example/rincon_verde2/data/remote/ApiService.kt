@@ -60,19 +60,19 @@ interface ApiService {
     /**
      * Login user with email and password
      */
-    @POST("/api/auth/login")
+    @POST("/api/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
     /**
      * Register new user
      */
-    @POST("/api/auth/register")
-    suspend fun register(@Body request: LoginRequest): LoginResponse
+    @POST("/api/register")
+    suspend fun register(@Body request: com.example.rincon_verde2.data.remote.dto.RegisterRequest): LoginResponse
 
     /**
      * Logout user
      */
-    @POST("/api/auth/logout")
+    @POST("/api/logout")
     suspend fun logout(): LoginResponse
 }
 
