@@ -1,5 +1,6 @@
 package com.example.rincon_verde2.ui.feature.home.components
 
+import android.util.Log
 import com.example.rincon_verde2.domain.model.PlaceCategory
 import com.example.rincon_verde2.domain.model.Place
 import androidx.compose.foundation.layout.Column
@@ -86,6 +87,7 @@ fun TopRatedCard(
   place: Place,
   onClick: () -> Unit
 ) {
+  Log.d("TopRatedCard", "${place.name} imageUrl=${place.imageUrl}")
   Card(
     onClick = onClick,
     modifier = Modifier.width(120.dp)
@@ -100,7 +102,7 @@ fun TopRatedCard(
           .fillMaxWidth()
       ) {
         AsyncImage(
-          model = "https://images.unsplash.com/photo-1702055328255-515c1c2c9e81",
+          model = place.imageUrl,
           contentDescription = place.name,
           modifier = Modifier.fillMaxSize(),
           contentScale = ContentScale.Crop

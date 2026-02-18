@@ -1,5 +1,6 @@
 package com.example.rincon_verde2.ui.feature.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rincon_verde2.data.repository.EventRepository
@@ -43,6 +44,11 @@ class HomeViewModel @Inject constructor(
                 val places = placesDeferred.await()
                 val events = eventsDeferred.await()
                 val favorites = favoritesDeferred.await()
+
+                Log.d("HomeViewModel", "Loaded ${places.size} places")
+                places.take(3).forEach { place ->
+                    Log.d("HomeViewModel", "Place: ${place.name}, imageUrl=${place.imageUrl}")
+                }
 
                 _uiState.value = _uiState.value.copy(
                     places = places,

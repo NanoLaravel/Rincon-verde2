@@ -23,6 +23,7 @@ import com.example.rincon_verde2.ui.feature.auth.AuthScreen
 import com.example.rincon_verde2.ui.feature.filter.FilterSheet
 import com.example.rincon_verde2.domain.model.Event
 import com.example.rincon_verde2.ui.feature.home.HomeScreen
+import com.example.rincon_verde2.ui.feature.home.HomeViewModel
 import com.example.rincon_verde2.ui.feature.placelist.PlaceListViewModel
 import com.example.rincon_verde2.domain.model.Place
 import com.example.rincon_verde2.domain.model.PlaceCategory
@@ -226,9 +227,16 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
 
       composable(Screen.Favorites.route) {
         RinconVerdeScaffold(navController = navController, currentRoute = Screen.Favorites.route) {
+          val viewModel: PlaceListViewModel = hiltViewModel()
+          val uiState = viewModel.uiState.collectAsState()
+          
+          LaunchedEffect(Unit) {
+            viewModel.loadPlaces()
+          }
+          
           PlaceListScreen(
             category = PlaceCategory.FAVORITES,
-            places = samplePlaces.take(3),
+            places = uiState.value.places.filter { it.rating >= 4.5 },
             onBackClick = { navController.navigateUp() },
             onFilterClick = { navController.navigate(Screen.Filters.route) },
             onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) }
