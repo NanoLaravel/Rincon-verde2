@@ -1,6 +1,9 @@
 package com.example.rincon_verde2.ui.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Pool
@@ -32,6 +35,8 @@ import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetailScreen
 import com.example.rincon_verde2.ui.feature.placedetail.Amenity
 import com.example.rincon_verde2.ui.feature.placedetail.ContactInfo
 import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetail
+import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetailViewModel
+import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetailUiState
 import com.example.rincon_verde2.ui.feature.placedetail.Review
 import com.example.rincon_verde2.ui.feature.profile.ProfileScreen
 import com.example.rincon_verde2.ui.feature.search.SearchScreen
@@ -287,33 +292,51 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
         route = Screen.PlaceDetail.route,
         arguments = listOf(navArgument("placeId") { type = NavType.StringType })
       ) { backStackEntry ->
-        val place = samplePlaces.find { it.id == (backStackEntry.arguments?.getString("placeId") ?: "1") }
-          ?: samplePlaces[0]
-        PlaceDetailScreen(
-          place = PlaceDetail(
-            id = place.id,
-            name = place.name,
-            imageUrl = place.imageUrl,
-            rating = place.rating,
-            location = place.location,
-            description = "Un excelente lugar con servicios de calidad.",
-            amenities = listOf(
-              Amenity("1", "WiFi", Icons.Filled.Wifi),
-              Amenity("2", "Piscina", Icons.Filled.Pool),
-              Amenity("3", "Seguridad", Icons.Filled.CheckCircle)
-            ),
-            contact = ContactInfo("+57 (1) 1234-5678", hours = "Lun-Dom: 12-10 PM"),
-            reviews = listOf(
-              Review("1", "Juan", 4.8f, "Excelente", "Hace 1 semana", "")
-            ),
-            isFavorite = false
-          ),
-          onBackClick = { navController.navigateUp() },
-          onShareClick = { },
-          onToggleFavorite = { },
-          onGetDirections = { },
-          onCall = { }
-        )
+        val viewModel: PlaceDetailViewModel = hiltViewModel()
+        val uiState = viewModel.uiState.collectAsState()
+        val placeId = backStackEntry.arguments?.getString("placeId") ?: "1"
+        
+        LaunchedEffect(placeId) {
+          viewModel.loadPlaceDetail(placeId)
+        }
+        
+        when (val state = uiState.value) {
+          is PlaceDetailUiState.Success -> {
+            PlaceDetailScreen(
+              place = state.place,
+              onBackClick = { navController.navigateUp() },
+              onShareClick = { },
+              onToggleFavorite = { viewModel.toggleFavorite() },
+              onGetDirections = { },
+              onCall = { }
+            )
+          }
+          is PlaceDetailUiState.Error -> {
+            // Mostrar error
+            PlaceDetailScreen(
+              place = PlaceDetail(
+                id = "1",
+                name = "Error",
+                imageUrl = "",
+                rating = 0f,
+                location = "",
+                description = state.message,
+                amenities = emptyList(),
+                contact = ContactInfo("", hours = ""),
+                reviews = emptyList()
+              ),
+              onBackClick = { navController.navigateUp() },
+              onShareClick = { },
+              onToggleFavorite = { },
+              onGetDirections = { },
+              onCall = { }
+            )
+          }
+          is PlaceDetailUiState.Loading -> {
+            // Mostrar loading - por ahora mostramos la pantalla vacía
+            Box(modifier = Modifier.fillMaxSize())
+          }
+        }
       }
 
       composable(Screen.Filters.route) {
