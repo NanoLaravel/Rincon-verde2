@@ -6,7 +6,9 @@ sealed class Screen(val route: String) {
     fun createRoute(mode: String = "login") = "auth/$mode"
   }
   data object Home : Screen("home")
-  data object Search : Screen("search")
+  data object Search : Screen("search/{filterTab}?autoOpen={autoOpen}") {
+    fun createRoute(filterTab: Int = 0, autoOpen: Boolean = false) = "search/$filterTab?autoOpen=$autoOpen"
+  }
   data object PlaceList : Screen("placeList/{category}") {
     fun createRoute(category: String) = "placeList/$category"
   }

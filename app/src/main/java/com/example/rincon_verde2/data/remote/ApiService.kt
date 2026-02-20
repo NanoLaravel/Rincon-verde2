@@ -6,11 +6,12 @@ import com.example.rincon_verde2.data.remote.dto.LoginRequest
 import com.example.rincon_verde2.data.remote.dto.LoginResponse
 import com.example.rincon_verde2.data.remote.dto.PlaceDto
 import com.example.rincon_verde2.data.remote.dto.PlacesResponse
+import com.example.rincon_verde2.data.remote.dto.RegisterRequest
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface ApiService {
 
@@ -18,7 +19,6 @@ interface ApiService {
 
     /**
      * Obtener lista de places
-     * Fácil de cambiar: solo actualiza la URL base y endpoint
      */
     @GET("/api/places")
     suspend fun getPlaces(): PlacesResponse
@@ -30,16 +30,40 @@ interface ApiService {
     suspend fun getPlaceById(@Path("id") placeId: String): PlaceDto
 
     /**
-     * Buscar places por query
+     * Buscar places por nombre
      */
-    @GET("/api/places/search")
-    suspend fun searchPlaces(@Query("q") query: String): PlacesResponse
+    @GET("/api/places/search/{name}")
+    suspend fun searchPlaces(@Path("name") name: String): List<PlaceDto>
+
+    /**
+     * Obtener places con rating entre min y max
+     */
+    @GET("/api/places/rating/{min}/{max}")
+    suspend fun getPlacesByRating(@Path("min") min: Float, @Path("max") max: Float): List<PlaceDto>
 
     /**
      * Obtener places por categoría
      */
     @GET("/api/places/category/{category}")
-    suspend fun getPlacesByCategory(@Path("category") category: String): PlacesResponse
+    suspend fun getPlacesByCategory(@Path("category") category: String): List<PlaceDto>
+
+    /**
+     * Obtener places por tipo
+     */
+    @GET("/api/places/type/{type}")
+    suspend fun getPlacesByType(@Path("type") type: String): List<PlaceDto>
+
+    /**
+     * Obtener los mejores lugares (por reviews/rating)
+     */
+    @GET("/api/places/best-reviews")
+    suspend fun getBestReviewedPlaces(): List<PlaceDto>
+
+    /**
+     * Obtener reviews de un lugar específico
+     */
+    @GET("/api/places/{placeId}/reviews")
+    suspend fun getPlaceReviews(@Path("placeId") placeId: String): Any
 
     // ============= EVENTS =============
 
@@ -67,12 +91,32 @@ interface ApiService {
      * Register new user
      */
     @POST("/api/register")
-    suspend fun register(@Body request: com.example.rincon_verde2.data.remote.dto.RegisterRequest): LoginResponse
+    suspend fun register(@Body request: RegisterRequest): LoginResponse
 
     /**
      * Logout user
      */
     @POST("/api/logout")
     suspend fun logout(): LoginResponse
+
+    // ============= FAVORITES =============
+
+    /**
+     * Obtener lugares favoritos del usuario
+     */
+    @GET("/api/favorites")
+    suspend fun getFavoritePlaces(): List<PlaceDto>
+
+    /**
+     * Agregar lugar a favoritos
+     */
+    @POST("/api/places/{placeId}/favorite")
+    suspend fun addFavorite(@Path("placeId") placeId: String): Any
+
+    /**
+     * Eliminar lugar de favoritos
+     */
+    @DELETE("/api/places/{placeId}/favorite")
+    suspend fun removeFavorite(@Path("placeId") placeId: String): Any
 }
 

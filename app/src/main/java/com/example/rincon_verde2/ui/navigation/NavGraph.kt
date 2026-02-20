@@ -23,7 +23,7 @@ import androidx.navigation.navArgument
 import com.example.rincon_verde2.domain.model.User
 import com.example.rincon_verde2.ui.components.RinconVerdeBottomBar
 import com.example.rincon_verde2.ui.feature.auth.AuthScreen
-import com.example.rincon_verde2.ui.feature.filter.FilterSheet
+// FilterSheet removed: use Search's FilterBottomSheet instead
 import com.example.rincon_verde2.domain.model.Event
 import com.example.rincon_verde2.ui.feature.home.HomeScreen
 import com.example.rincon_verde2.ui.feature.home.HomeViewModel
@@ -218,15 +218,29 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
             onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) },
             onCategoryClick = { navController.navigate(Screen.PlaceList.createRoute(it.name)) },
             onToggleFavorite = { viewModel.toggleFavorite(it) },
-            onFilterClick = { navController.navigate(Screen.Filters.route) },
+            onFilterClick = { navController.navigate(Screen.Search.createRoute(0, autoOpen = false)) },
             onNavigate = { navController.navigate(it) }
           )
         }
       }
 
-      composable(Screen.Search.route) {
+      composable(
+        route = Screen.Search.route,
+        arguments = listOf(
+          navArgument("filterTab") { type = NavType.IntType; defaultValue = 0 },
+          navArgument("autoOpen") { type = NavType.BoolType; defaultValue = false }
+        )
+      ) { backStackEntry ->
+        val filterTab = backStackEntry.arguments?.getInt("filterTab") ?: 0
+        val autoOpen = backStackEntry.arguments?.getBoolean("autoOpen") ?: false
         RinconVerdeScaffold(navController = navController, currentRoute = Screen.Search.route) {
-          SearchScreen(onFilterClick = { navController.navigate(Screen.Filters.route) })
+          SearchScreen(
+            initialFilterTab = filterTab,
+            autoOpenFilters = autoOpen,
+            onPlaceClick = { placeId ->
+              navController.navigate("${Screen.PlaceDetail.route}/$placeId")
+            }
+          )
         }
       }
 
@@ -243,7 +257,7 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
             category = PlaceCategory.FAVORITES,
             places = uiState.value.places.filter { it.rating >= 4.5 },
             onBackClick = { navController.navigateUp() },
-            onFilterClick = { navController.navigate(Screen.Filters.route) },
+            onFilterClick = { navController.navigate(Screen.Search.createRoute(0, autoOpen = false)) },
             onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) }
           )
         }
@@ -283,7 +297,15 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
           category = category,
           places = uiState.value.places,
           onBackClick = { navController.navigateUp() },
-          onFilterClick = { navController.navigate(Screen.Filters.route) },
+          onFilterClick = { 
+            val filterTab = when(category) {
+              PlaceCategory.EAT -> 0
+              PlaceCategory.STAY -> 1
+              PlaceCategory.ACTIVITY -> 2
+              else -> 0
+            }
+            navController.navigate(Screen.Search.createRoute(filterTab, autoOpen = true))
+          },
           onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) }
         )
       }
@@ -339,12 +361,7 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
         }
       }
 
-      composable(Screen.Filters.route) {
-        FilterSheet(
-          onApplyFilters = { _, _, _ -> },
-          onDismiss = { navController.navigateUp() }
-        )
-      }
+      // Filters screen removed — use SearchScreen's FilterBottomSheet instead
 
       composable(Screen.EditProfile.route) {
         ProfileScreen(
