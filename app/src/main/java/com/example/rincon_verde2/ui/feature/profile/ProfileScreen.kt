@@ -26,6 +26,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +38,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.rincon_verde2.domain.model.User
+import com.example.rincon_verde2.ui.theme.Strings
+import com.example.rincon_verde2.ui.theme.Spacing
+import com.example.rincon_verde2.ui.theme.IconSize
+import com.example.rincon_verde2.ui.theme.ComponentSize
 
 @Composable
 fun ProfileScreen(
@@ -49,79 +56,118 @@ fun ProfileScreen(
     ),
     onEditClick: () -> Unit = {},
     onLogout: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onBottomBarVisibilityChange: (Boolean) -> Unit = {},
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
+    
+    // Detectar dirección del scroll para ocultar/mostrar barra
+    var previousScrollValue by remember { mutableIntStateOf(0) }
+    
+    LaunchedEffect(scrollState.value) {
+        val currentScroll = scrollState.value
+        val scrollDiff = currentScroll - previousScrollValue
+        
+        // Solo cambiar si el scroll es significativo (más de 10px)
+        if (kotlin.math.abs(scrollDiff) > 10) {
+            if (scrollDiff > 0) {
+                // Scrolling down - ocultar barra
+                onBottomBarVisibilityChange(false)
+            } else {
+                // Scrolling up - mostrar barra
+                onBottomBarVisibilityChange(true)
+            }
+        }
+        
+        // Si estamos cerca del inicio, siempre mostrar la barra
+        if (currentScroll < 50) {
+            onBottomBarVisibilityChange(true)
+        }
+        
+        previousScrollValue = currentScroll
+    }
+    
+    // Cargar perfil al iniciar
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile(user.id)
+    }
+    
+    // Usar el usuario del estado si está disponible, sino el pasado por parámetro
+    val displayUser = uiState.user ?: user
+    
     var selectedTab by remember { mutableIntStateOf(0) }
     
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
     ) {
         // Profile Header
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(Spacing.spacingXxl),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Avatar
             Icon(
                 imageVector = Icons.Filled.Favorite,
-                contentDescription = "Avatar",
+                contentDescription = Strings.cdAvatar,
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(ComponentSize.avatarXLarge)
                     .clip(CircleShape)
-                    .padding(8.dp),
+                    .padding(Spacing.spacingMd),
                 tint = MaterialTheme.colorScheme.primary
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.spacingLg))
             
             Text(
-                text = user.displayName,
+                text = displayUser.displayName,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             
             Text(
-                text = user.email,
+                text = displayUser.email,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(Spacing.spacingXxl))
             
             // Stats Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = Spacing.spacingLg),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly
             ) {
-                StatCard(label = "Favoritos", value = user.favoriteCount.toString())
-                StatCard(label = "Reseñas", value = user.reviewCount.toString())
-                StatCard(label = "Calificación", value = "4.8")
+                StatCard(label = Strings.profileFavorites, value = displayUser.favoriteCount.toString())
+                StatCard(label = Strings.profileReviews, value = displayUser.reviewCount.toString())
+                StatCard(label = Strings.profileRating, value = "4.8")
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(Spacing.spacingXxl))
             
             Button(
                 onClick = onEditClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .height(ComponentSize.buttonLarge)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Edit,
-                    contentDescription = "Edit",
-                    modifier = Modifier.padding(end = 8.dp)
+                    contentDescription = Strings.actionEdit,
+                    modifier = Modifier.padding(end = Spacing.spacingMd)
                 )
-                Text("Editar perfil")
+                Text(Strings.profileEdit)
             }
         }
         
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        Divider(modifier = Modifier.padding(vertical = Spacing.spacingLg))
         
         // Tabs
         TabRow(
@@ -131,18 +177,18 @@ fun ProfileScreen(
             Tab(
                 selected = selectedTab == 0,
                 onClick = { selectedTab = 0 },
-                text = { Text("Perfil") }
+                text = { Text(Strings.profileTab) }
             )
             
             Tab(
                 selected = selectedTab == 1,
                 onClick = { selectedTab = 1 },
-                text = { Text("Configuración") }
+                text = { Text(Strings.profileSettingsTab) }
             )
         }
         
         when (selectedTab) {
-            0 -> ProfileContent(user)
+            0 -> ProfileContent(displayUser)
             1 -> SettingsContent(onLogout)
         }
     }
@@ -153,26 +199,26 @@ private fun ProfileContent(user: User) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp)
+            .padding(Spacing.spacingXxl)
     ) {
-        ProfileInfoRow(label = "Email", value = user.email)
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        ProfileInfoRow(label = Strings.profileEmail, value = user.email)
+        Divider(modifier = Modifier.padding(vertical = Spacing.spacingLg))
         
-        ProfileInfoRow(label = "Ubicación", value = "Bogotá, Colombia")
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        ProfileInfoRow(label = Strings.profileLocation, value = Strings.profileLocationValue)
+        Divider(modifier = Modifier.padding(vertical = Spacing.spacingLg))
         
-        ProfileInfoRow(label = "Miembro desde", value = "Octubre 2023")
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        ProfileInfoRow(label = Strings.profileMemberSince, value = Strings.profileMemberSinceValue)
+        Divider(modifier = Modifier.padding(vertical = Spacing.spacingLg))
         
         Text(
-            text = "Acerca de",
+            text = Strings.profileAbout,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = Spacing.spacingMd)
         )
         
         Text(
-            text = "Viajero apasionado en busca de nuevas experiencias. Me encanta descubrir lugares ocultos y compartir mis hallazgos con otros viajeros.",
+            text = Strings.profileAboutValue,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -180,43 +226,46 @@ private fun ProfileContent(user: User) {
 }
 
 @Composable
-private fun SettingsContent(onLogout: () -> Unit) {
+private fun SettingsContent(onLogout: () -> Unit, viewModel: ProfileViewModel = hiltViewModel()) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp)
+            .padding(Spacing.spacingXxl)
     ) {
         SettingItem(
-            title = "Notificaciones",
-            subtitle = "Recibe alertas sobre nuevos lugares y eventos",
+            title = Strings.profileNotifications,
+            subtitle = Strings.profileNotificationsSubtitle,
             enabled = true
         )
         
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        Divider(modifier = Modifier.padding(vertical = Spacing.spacingLg))
         
         SettingItem(
-            title = "Privacidad",
-            subtitle = "Controla quién ve tu perfil",
+            title = Strings.profilePrivacy,
+            subtitle = Strings.profilePrivacySubtitle,
             enabled = true
         )
         
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        Divider(modifier = Modifier.padding(vertical = Spacing.spacingLg))
         
         SettingItem(
-            title = "Sincronizar favoritos",
-            subtitle = "Sincroniza tu lista de favoritos en todos tus dispositivos",
+            title = Strings.profileSyncFavorites,
+            subtitle = Strings.profileSyncFavoritesSubtitle,
             enabled = true
         )
         
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(Spacing.spacingXxxl))
         
         OutlinedButton(
-            onClick = onLogout,
+            onClick = {
+                viewModel.logout()
+                onLogout()
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(ComponentSize.buttonLarge)
         ) {
-            Text("Cerrar sesión")
+            Text(Strings.profileLogout)
         }
     }
 }
@@ -225,7 +274,7 @@ private fun SettingsContent(onLogout: () -> Unit) {
 private fun StatCard(label: String, value: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(Spacing.spacingMd)
     ) {
         Text(
             text = value,
@@ -251,7 +300,7 @@ private fun ProfileInfoRow(label: String, value: String) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(Spacing.spacingXs))
         
         Text(
             text = value,
@@ -271,7 +320,7 @@ private fun SettingItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = Spacing.spacingLg),
         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -291,7 +340,7 @@ private fun SettingItem(
         
         Icon(
             imageVector = Icons.Filled.Settings,
-            contentDescription = null,
+            contentDescription = Strings.cdSettings,
             tint = MaterialTheme.colorScheme.primary
         )
     }

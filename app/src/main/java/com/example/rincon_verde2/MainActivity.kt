@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.example.rincon_verde2.ui.navigation.RinconVerdeNavGraph
-import com.example.rincon_verde2.ui.theme.Rinconverde2Theme
+import com.example.rincon_verde2.ui.theme.RinconVerdeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
 
     setContent {
-      Rinconverde2Theme {
+      RinconVerdeTheme {
         val navController = rememberNavController()
         RinconVerdeNavGraph(navController = navController)
       }

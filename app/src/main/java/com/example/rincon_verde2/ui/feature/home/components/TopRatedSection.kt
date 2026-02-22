@@ -37,6 +37,12 @@ import coil.compose.AsyncImage
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.remember
+import com.example.rincon_verde2.ui.theme.Strings
+import com.example.rincon_verde2.ui.theme.Spacing
+import com.example.rincon_verde2.ui.theme.CornerRadius
+import com.example.rincon_verde2.ui.theme.Elevation
+import com.example.rincon_verde2.ui.theme.IconSize
+import com.example.rincon_verde2.ui.theme.ComponentSize
 
 @Composable
 fun TopRatedSection(
@@ -51,25 +57,25 @@ fun TopRatedSection(
       verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
       Text(
-        text = "Mejor Valorados",
+        text = Strings.homeTopRated,
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onBackground,
         fontWeight = FontWeight.SemiBold
       )
 
       Text(
-        text = "Ver todos",
+        text = Strings.homeViewAll,
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.primary,
-        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+        fontWeight = FontWeight.Medium,
         modifier = Modifier.clickable { /* Navegar a todos */ }
       )
     }
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(Spacing.spacingMd))
 
     LazyRow(
-      horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+      horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(Spacing.spacingMd),
       modifier = Modifier.fillMaxWidth()
     ) {
       items(places) { place ->
@@ -92,8 +98,8 @@ fun TopRatedCard(
     onClick = onClick,
     modifier = Modifier.width(120.dp)
       .height(98.dp),
-    shape = RoundedCornerShape(12.dp),
-    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    shape = RoundedCornerShape(CornerRadius.radiusLg),
+    elevation = CardDefaults.cardElevation(defaultElevation = Elevation.low),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
   ) {
     Column {
@@ -110,10 +116,10 @@ fun TopRatedCard(
 
         Box(
           modifier = Modifier
-            .padding(8.dp)
-            .clip(RoundedCornerShape(4.dp))
+            .padding(Spacing.spacingMd)
+            .clip(RoundedCornerShape(CornerRadius.radiusXs))
             .background(MaterialTheme.colorScheme.primary)
-            .padding(horizontal = 6.dp, vertical = 2.dp)
+            .padding(horizontal = Spacing.spacingMd, vertical = Spacing.spacingXs)
             .align(androidx.compose.ui.Alignment.TopEnd)
         ) {
           Row(
@@ -121,11 +127,11 @@ fun TopRatedCard(
           ) {
             Icon(
               imageVector = Icons.Default.Star,
-              contentDescription = "Rating",
+              contentDescription = Strings.cdRating,
               tint = Color.White,
-              modifier = Modifier.size(10.dp)
+              modifier = Modifier.size(IconSize.xxs)
             )
-            Spacer(modifier = Modifier.width(2.dp))
+            Spacer(modifier = Modifier.width(Spacing.spacingXxs))
             Text(
               text = "%.1f".format(place.rating),
               color = Color.White,
@@ -137,7 +143,7 @@ fun TopRatedCard(
       }
 
       Column(
-        modifier = Modifier.padding(12.dp)
+        modifier = Modifier.padding(Spacing.spacingMd)
       ) {
         Text(
           text = place.name,
@@ -147,7 +153,7 @@ fun TopRatedCard(
           overflow = TextOverflow.Ellipsis
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(Spacing.spacingXs))
 
         Text(
           text = place.location,
@@ -170,4 +176,3 @@ fun TopRatedSectionPreview() {
   )
   TopRatedSection(places = sample, onPlaceClick = {}, modifier = Modifier)
 }
-

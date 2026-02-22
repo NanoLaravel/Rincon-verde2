@@ -39,7 +39,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +58,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.rincon_verde2.ui.feature.home.components.*
+import com.example.rincon_verde2.ui.theme.CategoryColors
+import com.example.rincon_verde2.ui.theme.Strings
+import com.example.rincon_verde2.ui.theme.Spacing
+import com.example.rincon_verde2.ui.theme.ComponentSize
 
 // Data classes
 data class CategoryConfig(
@@ -71,34 +79,61 @@ fun HomeScreen(
   onCategoryClick: (PlaceCategory) -> Unit,
   onToggleFavorite: (String) -> Unit,
   onFilterClick: () -> Unit,
-  onNavigate: (String) -> Unit
+  onNavigate: (String) -> Unit,
+  onBottomBarVisibilityChange: (Boolean) -> Unit = {}
 ) {
   val scrollState = rememberScrollState()
   val topRatedPlaces = remember(places) {
     places.sortedByDescending { it.rating }.take(6)
   }
 
+  // Detectar dirección del scroll para ocultar/mostrar barra
+  var previousScrollValue by remember { mutableIntStateOf(0) }
+  
+  LaunchedEffect(scrollState.value) {
+    val currentScroll = scrollState.value
+    val scrollDiff = currentScroll - previousScrollValue
+    
+    // Solo cambiar si el scroll es significativo (más de 10px)
+    if (kotlin.math.abs(scrollDiff) > 10) {
+      if (scrollDiff > 0) {
+        // Scrolling down - ocultar barra
+        onBottomBarVisibilityChange(false)
+      } else {
+        // Scrolling up - mostrar barra
+        onBottomBarVisibilityChange(true)
+      }
+    }
+    
+    // Si estamos cerca del inicio, siempre mostrar la barra
+    if (currentScroll < 50) {
+      onBottomBarVisibilityChange(true)
+    }
+    
+    previousScrollValue = currentScroll
+  }
+
   // Configuración de categorías usando la paleta de colores
   val categoryConfig = mapOf(
     PlaceCategory.ACTIVITY to CategoryConfig(
-      title = "Qué Hacer",
+      title = Strings.homeWhatToDo,
       icon = Icons.Default.Place,
-      color = MaterialTheme.colorScheme.primary // GreenPrimary
+      color = CategoryColors.Activity
     ),
     PlaceCategory.EAT to CategoryConfig(
-      title = "Dónde Comer",
+      title = Strings.homeWhereToEat,
       icon = Icons.Default.Restaurant,
-      color = Color(0xFFF97316) // OrangeSecondary
+      color = CategoryColors.Eat
     ),
     PlaceCategory.STAY to CategoryConfig(
-      title = "Dónde Alojarse",
+      title = Strings.homeWhereToStay,
       icon = Icons.Default.Bed,
-      color = Color(0xFF0284C7) // BlueAccent
+      color = CategoryColors.Stay
     ),
     PlaceCategory.FAVORITES to CategoryConfig(
-      title = "Favoritos",
+      title = Strings.homeFavorites,
       icon = Icons.Default.Favorite,
-      color = Color(0xFFDC2626) // Rojo para favoritos
+      color = CategoryColors.Favorites
     )
   )
 
@@ -110,9 +145,9 @@ fun HomeScreen(
   ) {
     // 1. Header estilo Figma
     HeaderSection(
-      modifier = Modifier.padding(bottom = 4.dp)
+      modifier = Modifier.padding(bottom = Spacing.spacingXs)
         .fillMaxWidth()
-        .height(180.dp) // Dale una altura específica para probar
+        .height(ComponentSize.headerLarge)
     )
 
     // 2. Categorías en fila horizontal
@@ -121,27 +156,27 @@ fun HomeScreen(
       favoritesCount = favorites.size,
       onCategoryClick = onCategoryClick,
       onFavoritesClick = { onNavigate("favorites") },
-      modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+      modifier = Modifier.padding(horizontal = Spacing.spacingMd, vertical = Spacing.spacingXs)
     )
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(Spacing.spacingMd))
 
     // 3. Mejor Valorados
     TopRatedSection(
       places = topRatedPlaces,
       onPlaceClick = onPlaceClick,
-      modifier = Modifier.padding(horizontal = 12.dp)
+      modifier = Modifier.padding(horizontal = Spacing.spacingMd)
     )
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(Spacing.spacingMd))
 
     // 4. Próximos Eventos
     EventsSection(
       events = events,
-      modifier = Modifier.padding(horizontal = 12.dp)
+      modifier = Modifier.padding(horizontal = Spacing.spacingMd)
     )
 
-    Spacer(modifier = Modifier.height(14.dp))
+    Spacer(modifier = Modifier.height(Spacing.spacingLg))
   }
 }
 
@@ -151,6 +186,6 @@ fun HomeScreen(
 
 // CategoriesSection and CategoryItem moved to components/CategoryGrid.kt and CategoryCard.kt
 
-// TopRatedSection and TopRatedCard moved to components/TopRatedSection.kt
+// TopRatedSection and TopRatedCard moved to components/TopRatedSection.kt`
 
 // EventsSection, EventCard and SimpleEventCard moved to `ui/feature/home/components/EventsSection.kt`

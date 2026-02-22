@@ -1,7 +1,10 @@
 package com.example.rincon_verde2.ui.feature.splash
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,12 +14,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CardTravel
+import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,144 +36,168 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.rincon_verde2.ui.theme.Rinconverde2Theme
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.rincon_verde2.ui.theme.RinconVerdeTheme
+import com.example.rincon_verde2.ui.theme.Strings
+import com.example.rincon_verde2.ui.theme.Spacing
+import com.example.rincon_verde2.ui.theme.AnimationDuration
+import com.example.rincon_verde2.ui.theme.GreenPrimary
+import com.example.rincon_verde2.ui.theme.GreenPrimaryDark
+import kotlinx.coroutines.delay
 
+/**
+ * Technical Splash Screen - Shows animated logo for 1 second
+ * then navigates to onboarding or directly to auth/home based on session state.
+ * 
+ * This is a minimal, branded loading screen that:
+ * 1. Shows the app logo with a scale + fade animation
+ * 2. Displays the app name and tagline
+ * 3. Waits 1 second before navigation
+ */
 @Composable
 fun SplashScreen(
-  onNavigateToHome: () -> Unit = { }
+    onNavigateToOnboarding: () -> Unit = { },
+    onNavigateToHome: () -> Unit = { },
+    onNavigateToAuth: () -> Unit = { },
+    viewModel: SplashViewModel = hiltViewModel()
 ) {
-  val scaleAnimation = remember { Animatable(0.5f) }
-  val alphaAnimation = remember { Animatable(0f) }
+    val scaleAnimation = remember { Animatable(0.3f) }
+    val alphaAnimation = remember { Animatable(0f) }
+    val pulseAnimation = remember { Animatable(1f) }
+    val sessionState by viewModel.sessionState.collectAsState()
 
-  LaunchedEffect(Unit) {
-    // Animar logo (escala + fade in)
-    scaleAnimation.animateTo(
-      targetValue = 1f,
-      animationSpec = tween(durationMillis = 1000)
-    )
-    alphaAnimation.animateTo(
-      targetValue = 1f,
-      animationSpec = tween(durationMillis = 1000)
-    )
-
-    // Esperar 3 segundos y navegar
-    kotlinx.coroutines.delay(3000)
-    onNavigateToHome()
-  }
-
-  Box(
-    modifier = Modifier
-      .fillMaxSize()
-      .background(MaterialTheme.colorScheme.primary),
-    contentAlignment = Alignment.Center
-  ) {
-    Column(
-      modifier = Modifier.fillMaxSize(),
-      verticalArrangement = Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      // Logo animado
-      Icon(
-        imageVector = Icons.Default.CardTravel,
-        contentDescription = "Rincón Verde Logo",
-        modifier = Modifier
-          .size(120.dp)
-          .scale(scaleAnimation.value)
-          .alpha(alphaAnimation.value),
-        tint = Color.White
-      )
-
-      Spacer(modifier = Modifier.height(32.dp))
-
-      // Nombre de la app
-      Text(
-        text = "Rincón Verde",
-        style = TextStyle(
-          fontSize = 36.sp,
-          fontWeight = FontWeight.Bold,
-          color = Color.White
-        ),
-        modifier = Modifier.alpha(alphaAnimation.value)
-      )
-
-      Spacer(modifier = Modifier.height(16.dp))
-
-      // Slogan
-      Text(
-        text = "Guía de Turismo Local",
-        style = TextStyle(
-          fontSize = 16.sp,
-          fontWeight = FontWeight.Light,
-          color = Color.White.copy(alpha = 0.8f)
-        ),
-        modifier = Modifier.alpha(alphaAnimation.value)
-      )
-
-      Spacer(modifier = Modifier.height(48.dp))
-
-      // Características destacadas
-      Column(
-        modifier = Modifier
-          .alpha(alphaAnimation.value),
-        horizontalAlignment = Alignment.CenterHorizontally
-      ) {
-        FeatureItem("🏠 Descubre lugares", "Restaurantes, hoteles y actividades")
-        Spacer(modifier = Modifier.height(16.dp))
-        FeatureItem("⭐ Reseñas locales", "Opiniones de visitantes y residentes")
-        Spacer(modifier = Modifier.height(16.dp))
-        FeatureItem("❤️ Guarda favoritos", "Marca tus lugares preferidos")
-        Spacer(modifier = Modifier.height(16.dp))
-        FeatureItem("📅 Eventos cercanos", "No te pierdas actividades locales")
-      }
-
-      Spacer(modifier = Modifier.weight(1f))
-
-      // Loading indicator
-      Text(
-        text = "Cargando...",
-        style = TextStyle(
-          fontSize = 12.sp,
-          color = Color.White.copy(alpha = 0.6f)
-        ),
-        modifier = Modifier
-          .align(Alignment.CenterHorizontally)
-          .alpha(alphaAnimation.value)
-      )
-
-      Spacer(modifier = Modifier.height(24.dp))
+    // Trigger session check when screen loads
+    LaunchedEffect(Unit) {
+        viewModel.checkSession()
     }
-  }
-}
 
-@Composable
-private fun FeatureItem(title: String, description: String) {
-  Column(
-    horizontalAlignment = Alignment.CenterHorizontally
-  ) {
-    Text(
-      text = title,
-      style = TextStyle(
-        fontSize = 14.sp,
-        fontWeight = FontWeight.SemiBold,
-        color = Color.White
-      ),
-      textAlign = TextAlign.Center
-    )
-    Text(
-      text = description,
-      style = TextStyle(
-        fontSize = 12.sp,
-        color = Color.White.copy(alpha = 0.7f)
-      ),
-      textAlign = TextAlign.Center
-    )
-  }
+    // Animate logo entrance
+    LaunchedEffect(Unit) {
+        // Initial scale animation
+        scaleAnimation.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 800,
+                easing = FastOutSlowInEasing
+            )
+        )
+        
+        // Fade in
+        alphaAnimation.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 600,
+                easing = FastOutSlowInEasing
+            )
+        )
+        
+        // Subtle pulse animation
+        pulseAnimation.animateTo(
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+    }
+
+    // Navigate after 2 seconds based on session state
+    LaunchedEffect(sessionState) {
+        delay(2000) // 2 seconds technical splash
+        
+        when (sessionState) {
+            is SessionState.Authenticated -> {
+                onNavigateToHome()
+            }
+            is SessionState.Unauthenticated -> {
+                onNavigateToOnboarding()
+            }
+            is SessionState.Loading -> {
+                // Wait for session check to complete
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colors = listOf(
+                        GreenPrimary,
+                        GreenPrimaryDark
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Animated logo
+            Icon(
+                imageVector = Icons.Default.Eco,
+                contentDescription = Strings.appName,
+                modifier = Modifier
+                    .size(120.dp)
+                    .scale(scaleAnimation.value * pulseAnimation.value)
+                    .alpha(alphaAnimation.value),
+                tint = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.spacingXxl))
+
+            // App name
+            Text(
+                text = "Rincón Verde",
+                style = TextStyle(
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    letterSpacing = 1.sp
+                ),
+                modifier = Modifier
+                    .alpha(alphaAnimation.value)
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.spacingSm))
+
+            // Tagline
+            Text(
+                text = Strings.splashTagline,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Light,
+                    color = Color.White.copy(alpha = 0.8f)
+                ),
+                modifier = Modifier.alpha(alphaAnimation.value)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Loading indicator
+            Text(
+                text = Strings.splashLoading,
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    color = Color.White.copy(alpha = 0.6f)
+                ),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .alpha(alphaAnimation.value)
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.spacingXxxl))
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
-  Rinconverde2Theme {
-    SplashScreen()
-  }
+    RinconVerdeTheme {
+        SplashScreen()
+    }
 }

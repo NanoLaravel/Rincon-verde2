@@ -1,3 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Rincon-verde2</string>
+    <!-- ============================================================
+         APP GENERAL
+         ============================================================ -->
+    <string name="app_name">Rincón Verde</string>
+    
+    <!-- ============================================================
+         AUTHENTICATION
+         ============================================================ -->
+    <string name="auth_app_title">Rincón Verde</string>
+    <string name="auth_welcome_back">Bienvenido de vuelta</string>
+    <string name="auth_join_community">Únete a nuestra comunidad</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_confirm_password">Confirmar contraseña</string>
+    <string name="auth_full_name">Nombre completo</string>
+    <string name="auth_login">Iniciar sesión</string>
+    <string name="auth_sign_up">Crear cuenta</string>
+    <string name="auth_no_account">¿No tienes cuenta?</string>
+    <string name="auth_create_account">Crear una nueva</string>
+    <string name="auth_have_account">¿Ya tienes cuenta?</string>
+    <string name="auth_login_prompt">Inicia sesión</string>
+    
+    <!-- ============================================================
+         HOME SCREEN
+         ============================================================ -->
+    <string name="home_discover">Descubre CHINÁCOTA</string>
+    <string name="home_subtitle">Clima perfecto • Naturaleza exuberante</string>
+    <string name="home_search">Buscar</string>
+    <string name="home_what_to_do">Qué Hacer</string>
+    <string name="home_where_to_eat">Dónde Comer</string>
+    <string name="home_where_to_stay">Dónde Alojarse</string>
+    <string name="home_favorites">Favoritos</string>
+    <string name="home_top_rated">Mejor Valorados</string>
+    <string name="home_view_all">Ver todos</string>
+    <string name="home_upcoming_events">Próximos Eventos</string>
+    <string name="home_header_image">Pueblo de Chinácota</string>
+    
+    <!-- ============================================================
+         SEARCH SCREEN
+         ============================================================ -->
+    <string name="search_placeholder">Buscar lugares…</string>
+    <string name="search_all_categories">Todas</string>
+    <string name="search_filters_active">Filtros activos ✓</string>
+    <string name="search_clear">Limpiar</string>
+    <string name="search_recent">Búsquedas recientes</string>
+    <string name="search_no_recent">No hay búsquedas recientes</string>
+    <string name="search_no_results">Sin resultados</string>
+    <string name="search_no_results_message">No se encontraron lugares que coincidan con tu búsqueda y filtros.</string>
+    <string name="search_clear_filters">Limpiar filtros</string>
+    <string name="search_results_for">Resultados para \"%1$s\"</string>
+    <string name="search_places_found">Se encontraron %1$d lugar%2$s</string>
+    <string name="search_places_plural">es</string>
+    <string name="search_places_singular"></string>
+    
+    <!-- ============================================================
+         FILTER BOTTOM SHEET
+         ============================================================ -->
+    <string name="filter_title">Filtros</string>
+    <string name="filter_category">Categoría</string>
+    <string name="filter_rating">Calificación mínima</string>
+    <string name="filter_price">Rango de precio</string>
+    <string name="filter_amenities">Servicios</string>
+    <string name="filter_apply">Aplicar filtros</string>
+    <string name="filter_clear_all">Limpiar todo</string>
+    <string name="filter_any">Cualquiera</string>
+    <string name="filter_free">Gratis</string>
+    <string name="filter_expensive">Costoso</string>
+    
+    <!-- ============================================================
+         PROFILE SCREEN
+         ============================================================ -->
+    <string name="profile_favorites">Favoritos</string>
+    <string name="profile_reviews">Reseñas</string>
+    <string name="profile_rating">Calificación</string>
+    <string name="profile_edit">Editar perfil</string>
+    <string name="profile_tab">Perfil</string>
+    <string name="profile_settings_tab">Configuración</string>
+    <string name="profile_logout">Cerrar sesión</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_location">Ubicación</string>
+    <string name="profile_location_value">Bogotá, Colombia</string>
+    <string name="profile_member_since">Miembro desde</string>
+    <string name="profile_member_since_value">Octubre 2023</string>
+    <string name="profile_about">Acerca de</string>
+    <string name="profile_about_value">Viajero apasionado en busca de nuevas experiencias. Me encanta descubrir lugares ocultos y compartir mis hallazgos con otros viajeros.</string>
+    <string name="profile_notifications">Notificaciones</string>
+    <string name="profile_notifications_subtitle">Recibe alertas sobre nuevos lugares y eventos</string>
+    <string name="profile_privacy">Privacidad</string>
+    <string name="profile_privacy_subtitle">Controla quién ve tu perfil</string>
+    <string name="profile_sync_favorites">Sincronizar favoritos</string>
+    <string name="profile_sync_favorites_subtitle">Sincroniza tu lista de favoritos en todos tus dispositivos</string>
+    
+    <!-- ============================================================
+         PLACE DETAIL SCREEN
+         ============================================================ -->
+    <string name="place_get_directions">Cómo llegar</string>
+    <string name="place_call">Llamar</string>
+    <string name="place_amenities">Servicios</string>
+    <string name="place_contact">Contacto</string>
+    <string name="place_reviews">Reseñas recientes</string>
+    <string name="place_description">Descripción</string>
+    <string name="place_share">Compartir</string>
+    <string name="place_save">Guardar</string>
+    <string name="place_website">Sitio web</string>
+    <string name="place_hours">Horario</string>
+    <string name="place_phone">Teléfono</string>
+    <string name="place_write_review">Escribir reseña</string>
+    
+    <!-- ============================================================
+         PLACE LIST SCREEN
+         ============================================================ -->
+    <string name="place_list_results">Resultados</string>
+    <string name="place_list_no_places">No hay lugares disponibles</string>
+    <string name="place_list_filter">Filtrar</string>
+    
+    <!-- ============================================================
+         FAVORITES SCREEN
+         ============================================================ -->
+    <string name="favorites_title">Mis Favoritos</string>
+    <string name="favorites_empty">No tienes favoritos aún</string>
+    <string name="favorites_empty_message">Explora lugares y guárdalos para encontrarlos fácilmente aquí.</string>
+    <string name="favorites_explore">Explorar lugares</string>
+    
+    <!-- ============================================================
+         CATEGORIES
+         ============================================================ -->
+    <string name="category_activity">Actividad</string>
+    <string name="category_eat">Comer</string>
+    <string name="category_stay">Alojamiento</string>
+    <string name="category_all">Todas las categorías</string>
+    
+    <!-- ============================================================
+         GENERAL ACTIONS
+         ============================================================ -->
+    <string name="action_share">Compartir</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_back">Volver</string>
+    <string name="action_next">Siguiente</string>
+    <string name="action_done">Listo</string>
+    <string name="action_apply">Aplicar</string>
+    <string name="action_clear">Limpiar</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_delete">Eliminar</string>
+    
+    <!-- ============================================================
+         CONTENT DESCRIPTIONS (Accessibility)
+         ============================================================ -->
+    <string name="cd_rating">Calificación</string>
+    <string name="cd_location">Ubicación</string>
+    <string name="cd_search">Buscar</string>
+    <string name="cd_filter">Filtrar</string>
+    <string name="cd_clear">Limpiar</string>
+    <string name="cd_favorite">Favorito</string>
+    <string name="cd_back">Volver</string>
+    <string name="cd_avatar">Avatar de usuario</string>
+    <string name="cd_place_image">Imagen del lugar</string>
+    <string name="cd_event_image">Imagen del evento</string>
+    <string name="cd_category_icon">Icono de categoría</string>
+    <string name="cd_menu">Menú</string>
+    <string name="cd_settings">Configuración</string>
+    <string name="cd_notification">Notificación</string>
+    <string name="cd_password">Contraseña</string>
+    <string name="cd_email">Email</string>
+    <string name="cd_star">Estrella</string>
+    <string name="cd_price">Precio</string>
+    
+    <!-- ============================================================
+         ERROR MESSAGES
+         ============================================================ -->
+    <string name="error_generic">Ha ocurrido un error</string>
+    <string name="error_network">Error de conexión. Verifica tu conexión a internet.</string>
+    <string name="error_loading">Error al cargar los datos</string>
+    <string name="error_login">Error al iniciar sesión</string>
+    <string name="error_signup">Error al crear la cuenta</string>
+    <string name="error_invalid_email">Email inválido</string>
+    <string name="error_invalid_password">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="error_password_mismatch">Las contraseñas no coinciden</string>
+    <string name="error_empty_field">Este campo es requerido</string>
+    
+    <!-- ============================================================
+         SUCCESS MESSAGES
+         ============================================================ -->
+    <string name="success_login">Sesión iniciada correctamente</string>
+    <string name="success_signup">Cuenta creada correctamente</string>
+    <string name="success_favorite_added">Agregado a favoritos</string>
+    <string name="success_favorite_removed">Eliminado de favoritos</string>
+    <string name="success_profile_updated">Perfil actualizado</string>
+    
+    <!-- ============================================================
+         LOADING STATES
+         ============================================================ -->
+    <string name="loading">Cargando…</string>
+    <string name="loading_places">Cargando lugares…</string>
+    <string name="loading_events">Cargando eventos…</string>
+    
+    <!-- ============================================================
+         EMPTY STATES
+         ============================================================ -->
+    <string name="empty_no_results">Sin resultados</string>
+    <string name="empty_no_favorites">Sin favoritos</string>
+    <string name="empty_no_events">No hay eventos próximos</string>
+    <string name="empty_no_reviews">Sin reseñas</string>
+    
+    <!-- ============================================================
+         PRICE RANGES
+         ============================================================ -->
+    <string name="price_free">Gratis</string>
+    <string name="price_low">$</string>
+    <string name="price_medium">$$</string>
+    <string name="price_high">$$$</string>
+    <string name="price_expensive">$$$$</string>
+    
+    <!-- ============================================================
+         AMENITIES
+         ============================================================ -->
+    <string name="amenity_wifi">WiFi</string>
+    <string name="amenity_parking">Estacionamiento</string>
+    <string name="amenity_pool">Piscina</string>
+    <string name="amenity_ac">Aire Acondicionado</string>
+    <string name="amenity_restaurant">Restaurante</string>
+    <string name="amenity_bar">Bar</string>
+    <string name="amenity_gym">Gimnasio</string>
+    <string name="amenity_spa">Spa</string>
+    <string name="amenity_pets">Mascotas permitidas</string>
+    <string name="amenity_kids">Amigable con niños</string>
+    <string name="amenity_vegetarian">Opciones vegetarianas</string>
+    <string name="amenity_vegan">Opciones veganas</string>
+    <string name="amenity_terrace">Terraza</string>
+    <string name="amenity_delivery">Domicilios</string>
+    <string name="amenity_takeaway">Para llevar</string>
+    
+    <!-- ============================================================
+         SPLASH SCREEN
+         ============================================================ -->
+    <string name="splash_tagline">Descubre la magia de Chinácota</string>
+    <string name="splash_loading">Cargando…</string>
+    
+    <!-- ============================================================
+         ONBOARDING SCREEN
+         ============================================================ -->
+    <string name="onboarding_skip">Omitir</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_start">Comenzar</string>
+    
+    <!-- Page 1: Discover -->
+    <string name="onboarding_discover_title">Descubre lugares únicos</string>
+    <string name="onboarding_discover_description">Explora los rincones más hermosos de Chinácota: montañas, cascadas y paisajes que te dejarán sin aliento.</string>
+    
+    <!-- Page 2: Stay -->
+    <string name="onboarding_stay_title">Cabañas y experiencias</string>
+    <string name="onboarding_stay_description">Encuentra cabañas acogedoras, hoteles con vista a las montañas y experiencias inolvidables para tu estadía.</string>
+    
+    <!-- Page 3: Explore -->
+    <string name="onboarding_explore_title">Reserva y explora</string>
+    <string name="onboarding_explore_description">Reserva tu lugar favorito, explora nuevas experiencias y comparte tus reseñas con otros viajeros.</string>
 </resources>

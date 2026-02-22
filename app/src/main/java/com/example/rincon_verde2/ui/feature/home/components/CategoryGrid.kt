@@ -36,57 +36,72 @@ import coil.compose.AsyncImage
 import com.example.rincon_verde2.ui.feature.home.CategoryConfig
 import com.example.rincon_verde2.domain.model.Event
 import com.example.rincon_verde2.domain.model.PlaceCategory
+import com.example.rincon_verde2.ui.theme.Strings
+import com.example.rincon_verde2.ui.theme.Spacing
+import com.example.rincon_verde2.ui.theme.CategoryColors
 
+/**
+ * Categories Section Component
+ * 
+ * Displays a horizontal scrollable list of category items.
+ * Used in the home screen for quick category navigation.
+ * 
+ * @param categoryConfig Map of category configurations
+ * @param favoritesCount Number of favorites to display in badge
+ * @param onCategoryClick Callback when a category is clicked
+ * @param onFavoritesClick Callback when favorites is clicked
+ * @param modifier Optional modifier
+ */
 @Composable
 fun CategoriesSection(
-  categoryConfig: Map<PlaceCategory, CategoryConfig>,
-  favoritesCount: Int,
-  onCategoryClick: (PlaceCategory) -> Unit,
-  onFavoritesClick: () -> Unit,
-  modifier: Modifier = Modifier
+    categoryConfig: Map<PlaceCategory, CategoryConfig>,
+    favoritesCount: Int,
+    onCategoryClick: (PlaceCategory) -> Unit,
+    onFavoritesClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-  Column(modifier = modifier) {
-    Text(
-      text = "Explorar",
-      style = MaterialTheme.typography.titleMedium,
-      color = MaterialTheme.colorScheme.onBackground,
-      fontWeight = FontWeight.SemiBold,
-      modifier = Modifier.padding(bottom = 16.dp)
-    )
-
-    LazyRow(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-      items(categoryConfig.filter { it.key != PlaceCategory.FAVORITES }.entries.toList()) { (category, config) ->
-        CategoryItem(
-          config = config,
-          onClick = { onCategoryClick(category) }
+    Column(modifier = modifier) {
+        Text(
+            text = Strings.homeSearch,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(bottom = Spacing.spacingLg)
         )
-      }
 
-      item {
-        val favoritesConfig = categoryConfig[PlaceCategory.FAVORITES]!!
-        CategoryItem(
-          config = favoritesConfig.copy(
-            title = if (favoritesCount > 0) "Favoritos ($favoritesCount)" else "Favoritos"
-          ),
-          onClick = onFavoritesClick,
-          showBadge = favoritesCount > 0
-        )
-      }
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            items(categoryConfig.filter { it.key != PlaceCategory.FAVORITES }.entries.toList()) { (category, config) ->
+                CategoryItem(
+                    config = config,
+                    onClick = { onCategoryClick(category) }
+                )
+            }
+
+            item {
+                val favoritesConfig = categoryConfig[PlaceCategory.FAVORITES]!!
+                CategoryItem(
+                    config = favoritesConfig.copy(
+                        title = if (favoritesCount > 0) "${Strings.homeFavorites} ($favoritesCount)" else Strings.homeFavorites
+                    ),
+                    onClick = onFavoritesClick,
+                    showBadge = favoritesCount > 0
+                )
+            }
+        }
     }
-  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun CategoriesSectionPreview() {
-  val sample = mapOf(
-    PlaceCategory.EAT to CategoryConfig("Comer", Icons.Default.Restaurant, androidx.compose.ui.graphics.Color(0xFFF97316)),
-    PlaceCategory.STAY to CategoryConfig("Alojar", Icons.Default.Bed, androidx.compose.ui.graphics.Color(0xFF0284C7)),
-    PlaceCategory.FAVORITES to CategoryConfig("Favoritos", Icons.Default.Favorite, androidx.compose.ui.graphics.Color(0xFFDC2626))
-  )
-  CategoriesSection(categoryConfig = sample, favoritesCount = 2, onCategoryClick = {}, onFavoritesClick = {}, modifier = Modifier)
+    val sample = mapOf(
+        PlaceCategory.ACTIVITY to CategoryConfig(Strings.homeWhatToDo, Icons.Default.Place, CategoryColors.Activity),
+        PlaceCategory.EAT to CategoryConfig(Strings.homeWhereToEat, Icons.Default.Restaurant, CategoryColors.Eat),
+        PlaceCategory.STAY to CategoryConfig(Strings.homeWhereToStay, Icons.Default.Bed, CategoryColors.Stay),
+        PlaceCategory.FAVORITES to CategoryConfig(Strings.homeFavorites, Icons.Default.Favorite, CategoryColors.Favorites)
+    )
+    CategoriesSection(categoryConfig = sample, favoritesCount = 2, onCategoryClick = {}, onFavoritesClick = {}, modifier = Modifier)
 }
-

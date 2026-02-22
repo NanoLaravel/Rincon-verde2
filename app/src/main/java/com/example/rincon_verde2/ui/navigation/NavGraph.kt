@@ -1,5 +1,8 @@
 package com.example.rincon_verde2.ui.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,11 +44,13 @@ import com.example.rincon_verde2.ui.feature.placedetail.Review
 import com.example.rincon_verde2.ui.feature.profile.ProfileScreen
 import com.example.rincon_verde2.ui.feature.search.SearchScreen
 import com.example.rincon_verde2.ui.feature.splash.SplashScreen
+import com.example.rincon_verde2.ui.feature.onboarding.OnboardingScreen
+import com.example.rincon_verde2.ui.feature.onboarding.getDefaultOnboardingPages
 
 @Composable
 fun RinconVerdeNavGraph(navController: NavHostController) {
-  val isAuthenticated = remember { mutableStateOf(false) }
-  val currentUser = remember { mutableStateOf<User?>(null) }
+  // El estado de autenticación ahora se maneja en SplashViewModel y AuthViewModel
+  // No necesitamos mantener isAuthenticated y currentUser aquí
   
   // Sample data
   val samplePlaces = remember {
@@ -162,13 +167,34 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
 
   NavHost(navController = navController, startDestination = Screen.Splash.route) {
     composable(Screen.Splash.route) {
-      SplashScreen(onNavigateToHome = {
-        navController.navigate(
-          if (isAuthenticated.value) Screen.Home.route else Screen.Auth.createRoute("login")
-        ) {
-          popUpTo(Screen.Splash.route) { inclusive = true }
+      SplashScreen(
+        onNavigateToOnboarding = {
+          navController.navigate(Screen.Onboarding.route) {
+            popUpTo(Screen.Splash.route) { inclusive = true }
+          }
+        },
+        onNavigateToHome = {
+          navController.navigate(Screen.Home.route) {
+            popUpTo(Screen.Splash.route) { inclusive = true }
+          }
+        },
+        onNavigateToAuth = {
+          navController.navigate(Screen.Auth.createRoute("login")) {
+            popUpTo(Screen.Splash.route) { inclusive = true }
+          }
         }
-      })
+      )
+    }
+
+    composable(Screen.Onboarding.route) {
+      OnboardingScreen(
+        onboardingPages = getDefaultOnboardingPages(),
+        onComplete = {
+          navController.navigate(Screen.Auth.createRoute("login")) {
+            popUpTo(Screen.Onboarding.route) { inclusive = true }
+          }
+        }
+      )
     }
 
     composable(
@@ -177,24 +203,16 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
     ) {
       AuthScreen(
         mode = "login",
-        onLoginSuccess = { email ->
-          currentUser.value = User(
-            id = email.hashCode().toString(),
-            email = email,
-            displayName = email.substringBefore("@")
-          )
-          isAuthenticated.value = true
+        onLoginSuccess = { _ ->
+          // El usuario ya está guardado en UserRepository por AuthViewModel
+          // Solo navegamos a Home
           navController.navigate(Screen.Home.route) {
             popUpTo(Screen.Auth.route) { inclusive = true }
           }
         },
-        onSignUpSuccess = { email, displayName ->
-          currentUser.value = User(
-            id = email.hashCode().toString(),
-            email = email,
-            displayName = displayName
-          )
-          isAuthenticated.value = true
+        onSignUpSuccess = { _, _ ->
+          // El usuario ya está guardado en UserRepository por AuthViewModel
+          // Solo navegamos a Home
           navController.navigate(Screen.Home.route) {
             popUpTo(Screen.Auth.route) { inclusive = true }
           }
@@ -203,7 +221,12 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
     }
 
     composable(Screen.Home.route) {
-        RinconVerdeScaffold(navController = navController, currentRoute = Screen.Home.route) {
+        val bottomBarVisible = remember { mutableStateOf(true) }
+        RinconVerdeScaffold(
+          navController = navController, 
+          currentRoute = Screen.Home.route,
+          bottomBarVisible = bottomBarVisible.value
+        ) {
           val viewModel: HomeViewModel = hiltViewModel()
           val uiState = viewModel.uiState.collectAsState()
           
@@ -219,7 +242,8 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
             onCategoryClick = { navController.navigate(Screen.PlaceList.createRoute(it.name)) },
             onToggleFavorite = { viewModel.toggleFavorite(it) },
             onFilterClick = { navController.navigate(Screen.Search.createRoute(0, autoOpen = false)) },
-            onNavigate = { navController.navigate(it) }
+            onNavigate = { navController.navigate(it) },
+            onBottomBarVisibilityChange = { visible -> bottomBarVisible.value = visible }
           )
         }
       }
@@ -233,19 +257,30 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
       ) { backStackEntry ->
         val filterTab = backStackEntry.arguments?.getInt("filterTab") ?: 0
         val autoOpen = backStackEntry.arguments?.getBoolean("autoOpen") ?: false
-        RinconVerdeScaffold(navController = navController, currentRoute = Screen.Search.route) {
+        val bottomBarVisible = remember { mutableStateOf(true) }
+        RinconVerdeScaffold(
+          navController = navController, 
+          currentRoute = Screen.Search.route,
+          bottomBarVisible = bottomBarVisible.value
+        ) {
           SearchScreen(
             initialFilterTab = filterTab,
             autoOpenFilters = autoOpen,
             onPlaceClick = { placeId ->
               navController.navigate("${Screen.PlaceDetail.route}/$placeId")
-            }
+            },
+            onBottomBarVisibilityChange = { visible -> bottomBarVisible.value = visible }
           )
         }
       }
 
       composable(Screen.Favorites.route) {
-        RinconVerdeScaffold(navController = navController, currentRoute = Screen.Favorites.route) {
+        val bottomBarVisible = remember { mutableStateOf(true) }
+        RinconVerdeScaffold(
+          navController = navController, 
+          currentRoute = Screen.Favorites.route,
+          bottomBarVisible = bottomBarVisible.value
+        ) {
           val viewModel: PlaceListViewModel = hiltViewModel()
           val uiState = viewModel.uiState.collectAsState()
           
@@ -258,28 +293,35 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
             places = uiState.value.places.filter { it.rating >= 4.5 },
             onBackClick = { navController.navigateUp() },
             onFilterClick = { navController.navigate(Screen.Search.createRoute(0, autoOpen = false)) },
-            onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) }
+            onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) },
+            onBottomBarVisibilityChange = { visible -> bottomBarVisible.value = visible },
+            showTopBar = false
           )
         }
       }
 
       composable(Screen.Profile.route) {
-        RinconVerdeScaffold(navController = navController, currentRoute = Screen.Profile.route) {
+        val bottomBarVisible = remember { mutableStateOf(true) }
+        RinconVerdeScaffold(
+          navController = navController, 
+          currentRoute = Screen.Profile.route,
+          bottomBarVisible = bottomBarVisible.value
+        ) {
           ProfileScreen(
-            user = currentUser.value ?: User("1", "user@example.com", "Usuario"),
+            user = User("1", "user@example.com", "Usuario"),
             onEditClick = { navController.navigate(Screen.EditProfile.route) },
             onLogout = {
-              isAuthenticated.value = false
-              currentUser.value = null
+              // ProfileViewModel ya llama a userRepository.logout()
+              // Solo navegamos a Auth
               navController.navigate(Screen.Auth.createRoute("login")) {
                 popUpTo(Screen.Home.route) { inclusive = true }
               }
             },
-            onNavigateBack = { navController.navigateUp() }
+            onNavigateBack = { navController.navigateUp() },
+            onBottomBarVisibilityChange = { visible -> bottomBarVisible.value = visible }
           )
         }
       }
-
       composable(
         route = Screen.PlaceList.route,
         arguments = listOf(navArgument("category") { type = NavType.StringType })
@@ -288,26 +330,35 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
           ?: PlaceCategory.ACTIVITY
         val viewModel: PlaceListViewModel = hiltViewModel()
         val uiState = viewModel.uiState.collectAsState()
+        val bottomBarVisible = remember { mutableStateOf(true) }
         
         LaunchedEffect(category) {
           viewModel.loadPlacesByCategory(category)
         }
         
-        PlaceListScreen(
-          category = category,
-          places = uiState.value.places,
-          onBackClick = { navController.navigateUp() },
-          onFilterClick = { 
-            val filterTab = when(category) {
-              PlaceCategory.EAT -> 0
-              PlaceCategory.STAY -> 1
-              PlaceCategory.ACTIVITY -> 2
-              else -> 0
-            }
-            navController.navigate(Screen.Search.createRoute(filterTab, autoOpen = true))
-          },
-          onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) }
-        )
+        RinconVerdeScaffold(
+          navController = navController,
+          currentRoute = Screen.PlaceList.route,
+          bottomBarVisible = bottomBarVisible.value
+        ) {
+          PlaceListScreen(
+            category = category,
+            places = uiState.value.places,
+            onBackClick = { navController.navigateUp() },
+            onFilterClick = { 
+              val filterTab = when(category) {
+                PlaceCategory.EAT -> 0
+                PlaceCategory.STAY -> 1
+                PlaceCategory.ACTIVITY -> 2
+                else -> 0
+              }
+              navController.navigate(Screen.Search.createRoute(filterTab, autoOpen = true))
+            },
+            onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) },
+            onBottomBarVisibilityChange = { visible -> bottomBarVisible.value = visible },
+            showTopBar = false
+          )
+        }
       }
 
       composable(
@@ -365,9 +416,14 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
 
       composable(Screen.EditProfile.route) {
         ProfileScreen(
-          user = currentUser.value ?: User("1", "user@example.com", "Usuario"),
+          user = User("1", "user@example.com", "Usuario"),
           onEditClick = { navController.navigateUp() },
-          onLogout = { isAuthenticated.value = false },
+          onLogout = {
+            // ProfileViewModel maneja el logout
+            navController.navigate(Screen.Auth.createRoute("login")) {
+              popUpTo(Screen.Home.route) { inclusive = true }
+            }
+          },
           onNavigateBack = { navController.navigateUp() }
         )
       }
@@ -378,20 +434,27 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
 private fun RinconVerdeScaffold(
   navController: NavHostController,
   currentRoute: String,
+  bottomBarVisible: Boolean = true,
   content: @Composable (PaddingValues) -> Unit
 ) {
   Scaffold(
     bottomBar = {
-      RinconVerdeBottomBar(
-        currentRoute = currentRoute,
-        onNavigate = { route ->
-          navController.navigate(route) {
-            popUpTo(navController.graph.startDestinationId) { saveState = true }
-            launchSingleTop = true
-            restoreState = true
+      AnimatedVisibility(
+        visible = bottomBarVisible,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it })
+      ) {
+        RinconVerdeBottomBar(
+          currentRoute = currentRoute,
+          onNavigate = { route ->
+            navController.navigate(route) {
+              popUpTo(navController.graph.startDestinationId) { saveState = true }
+              launchSingleTop = true
+              restoreState = true
+            }
           }
-        }
-      )
+        )
+      }
     }
   ) { padding ->
     content(padding)

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bed
 import androidx.compose.material.icons.filled.Favorite
@@ -15,6 +16,11 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,8 +48,35 @@ fun PlaceListScreen(
   places: List<Place> = emptyList(),
   onBackClick: () -> Unit = { },
   onFilterClick: () -> Unit = { },
-  onPlaceClick: (Place) -> Unit = { }
+  onPlaceClick: (Place) -> Unit = { },
+  onBottomBarVisibilityChange: (Boolean) -> Unit = {},
+  showTopBar: Boolean = true
 ) {
+  val lazyGridState = rememberLazyGridState()
+  
+  // Detectar dirección del scroll para ocultar/mostrar barra
+  var previousScrollValue by remember { mutableIntStateOf(0) }
+  
+  LaunchedEffect(lazyGridState.firstVisibleItemScrollOffset) {
+    val currentScroll = lazyGridState.firstVisibleItemScrollOffset + 
+                       lazyGridState.firstVisibleItemIndex * 1000
+    val scrollDiff = currentScroll - previousScrollValue
+    
+    if (kotlin.math.abs(scrollDiff) > 10) {
+      if (scrollDiff > 0) {
+        onBottomBarVisibilityChange(false)
+      } else {
+        onBottomBarVisibilityChange(true)
+      }
+    }
+    
+    if (lazyGridState.firstVisibleItemIndex == 0 && lazyGridState.firstVisibleItemScrollOffset < 50) {
+      onBottomBarVisibilityChange(true)
+    }
+    
+    previousScrollValue = currentScroll
+  }
+  
   val categoryMap = mapOf(
     PlaceCategory.ACTIVITY to CategoryInfo(
       category = PlaceCategory.ACTIVITY,
@@ -77,61 +110,98 @@ fun PlaceListScreen(
 
   val currentCategory = categoryMap[category] ?: categoryMap[PlaceCategory.ACTIVITY]!!
 
-  Scaffold(
-    topBar = {
+  // Si showTopBar es true, usamos Scaffold con topBar
+  // Si es false, asumimos que estamos dentro de otro Scaffold
+  if (showTopBar) {
+    Scaffold(
+      topBar = {
+        PlaceListHeader(
+          onBackClick = onBackClick,
+          onFilterClick = onFilterClick
+        )
+      }
+    ) { paddingValues ->
+      PlaceListContent(
+        places = places,
+        currentCategory = currentCategory,
+        lazyGridState = lazyGridState,
+        onPlaceClick = onPlaceClick,
+        contentPadding = paddingValues
+      )
+    }
+  } else {
+    // Sin Scaffold interno, mostrar header como parte del contenido
+    Column(modifier = Modifier.fillMaxSize()) {
       PlaceListHeader(
         onBackClick = onBackClick,
         onFilterClick = onFilterClick
       )
+      PlaceListContent(
+        places = places,
+        currentCategory = currentCategory,
+        lazyGridState = lazyGridState,
+        onPlaceClick = onPlaceClick,
+        contentPadding = PaddingValues(0.dp)
+      )
     }
-  ) { paddingValues ->
-    Box(
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(paddingValues)
-    ) {
-      if (places.isEmpty()) {
-        Column(
-          modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-          horizontalAlignment = Alignment.CenterHorizontally,
-          verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+  }
+}
+
+@Composable
+private fun PlaceListContent(
+  places: List<Place>,
+  currentCategory: CategoryInfo,
+  lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState,
+  onPlaceClick: (Place) -> Unit,
+  contentPadding: PaddingValues
+) {
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .padding(contentPadding)
+  ) {
+    if (places.isEmpty()) {
+      Column(
+        modifier = Modifier
+          .fillMaxSize()
+          .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+      ) {
+        CategoryHeader(
+          icon = currentCategory.icon,
+          title = currentCategory.title,
+          subtitle = currentCategory.subtitle,
+          iconColor = currentCategory.color,
+          modifier = Modifier.align(Alignment.Start)
+        )
+
+        ResultsCounter(count = 0)
+      }
+    } else {
+      Column(modifier = Modifier.fillMaxSize()) {
+        CategoryHeader(
+          icon = currentCategory.icon,
+          title = currentCategory.title,
+          subtitle = currentCategory.subtitle,
+          iconColor = currentCategory.color
+        )
+
+        ResultsCounter(count = places.size)
+
+        LazyVerticalGrid(
+          columns = GridCells.Fixed(2),
+          contentPadding = PaddingValues(12.dp),
+          verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+          horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+          modifier = Modifier.fillMaxSize(),
+          state = lazyGridState
         ) {
-          CategoryHeader(
-            icon = currentCategory.icon,
-            title = currentCategory.title,
-            subtitle = currentCategory.subtitle,
-            iconColor = currentCategory.color,
-            modifier = Modifier.align(Alignment.Start)
-          )
-
-          ResultsCounter(count = 0)
-        }
-      } else {
-        Column(modifier = Modifier.fillMaxSize()) {
-          CategoryHeader(
-            icon = currentCategory.icon,
-            title = currentCategory.title,
-            subtitle = currentCategory.subtitle,
-            iconColor = currentCategory.color
-          )
-
-          ResultsCounter(count = places.size)
-
-          LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(12.dp),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxSize()
-          ) {
-            items(places) { place ->
-              PlaceCard(
-                place = place,
-                onClick = { onPlaceClick(place) }
-              )
-            }
+          items(places) { place ->
+            PlaceCard(
+              place = place,
+              onClick = { onPlaceClick(place) }
+            )
           }
         }
       }

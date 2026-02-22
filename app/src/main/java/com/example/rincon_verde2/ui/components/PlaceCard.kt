@@ -29,6 +29,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.rincon_verde2.domain.model.Place
+import com.example.rincon_verde2.ui.theme.Strings
+import com.example.rincon_verde2.ui.theme.Spacing
+import com.example.rincon_verde2.ui.theme.CornerRadius
+import com.example.rincon_verde2.ui.theme.Elevation
+import com.example.rincon_verde2.ui.theme.IconSize
+import com.example.rincon_verde2.ui.theme.ComponentSize
+import com.example.rincon_verde2.ui.theme.YellowAccent
 
 @Composable
 fun PlaceCard(
@@ -39,9 +46,9 @@ fun PlaceCard(
     modifier = Modifier
       .fillMaxWidth()
       .clickable { onClick() },
-    shape = RoundedCornerShape(12.dp),
+    shape = RoundedCornerShape(CornerRadius.radiusLg),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = Elevation.medium)
   ) {
     Column(
       modifier = Modifier
@@ -51,36 +58,36 @@ fun PlaceCard(
       Box(
         modifier = Modifier
           .fillMaxWidth()
-          .height(160.dp)
+          .height(ComponentSize.cardLarge)
       ) {
         AsyncImage(
           model = place.imageUrl,
           contentDescription = place.name,
           modifier = Modifier
             .fillMaxWidth()
-            .height(160.dp),
+            .height(ComponentSize.cardLarge),
           contentScale = ContentScale.Crop
         )
         
         // Rating badge en la esquina
         Card(
           modifier = Modifier
-            .padding(8.dp)
+            .padding(Spacing.spacingMd)
             .align(Alignment.TopEnd),
-          shape = RoundedCornerShape(8.dp),
+          shape = RoundedCornerShape(CornerRadius.radiusMd),
           colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f))
         ) {
           Row(
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = Spacing.spacingMd, vertical = Spacing.spacingXs),
             verticalAlignment = Alignment.CenterVertically
           ) {
             Icon(
               imageVector = Icons.Default.Star,
-              contentDescription = "Rating",
-              tint = Color.Yellow,
-              modifier = Modifier.size(14.dp)
+              contentDescription = Strings.cdRating,
+              tint = YellowAccent,
+              modifier = Modifier.size(IconSize.xs)
             )
-            Spacer(modifier = Modifier.width(2.dp))
+            Spacer(modifier = Modifier.width(Spacing.spacingXxs))
             Text(
               text = "${place.rating}",
               style = MaterialTheme.typography.labelSmall,
@@ -93,7 +100,7 @@ fun PlaceCard(
       
       // Contenido
       Column(
-        modifier = Modifier.padding(12.dp)
+        modifier = Modifier.padding(Spacing.spacingMd)
       ) {
         Text(
           text = place.name,
@@ -104,7 +111,7 @@ fun PlaceCard(
           overflow = TextOverflow.Ellipsis
         )
         
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(Spacing.spacingXs))
         
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -112,11 +119,11 @@ fun PlaceCard(
         ) {
           Icon(
             imageVector = Icons.Default.LocationOn,
-            contentDescription = "Ubicación",
+            contentDescription = Strings.cdLocation,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(14.dp)
+            modifier = Modifier.size(IconSize.xs)
           )
-          Spacer(modifier = Modifier.width(4.dp))
+          Spacer(modifier = Modifier.width(Spacing.spacingXs))
           Text(
             text = place.location,
             style = MaterialTheme.typography.labelSmall,

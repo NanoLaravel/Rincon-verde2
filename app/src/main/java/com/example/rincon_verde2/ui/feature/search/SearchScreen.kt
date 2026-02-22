@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -32,7 +34,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +50,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.rincon_verde2.domain.model.PlaceCategory
 import com.example.rincon_verde2.ui.components.PlaceCard
 import com.example.rincon_verde2.ui.feature.search.components.FilterBottomSheet
+import com.example.rincon_verde2.ui.theme.Strings
+import com.example.rincon_verde2.ui.theme.Spacing
+import com.example.rincon_verde2.ui.theme.CornerRadius
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -53,7 +60,8 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     initialFilterTab: Int = 0,
     autoOpenFilters: Boolean = false,
-    onPlaceClick: (String) -> Unit = {}
+    onPlaceClick: (String) -> Unit = {},
+    onBottomBarVisibilityChange: (Boolean) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val recentSearches by viewModel.recentSearches.collectAsStateWithLifecycle()
@@ -61,6 +69,30 @@ fun SearchScreen(
     var searchQuery by remember { mutableStateOf("") }
     var showFilterSheet by remember { mutableStateOf(autoOpenFilters) }
     val filterSheetState = rememberModalBottomSheetState()
+    val lazyListState = rememberLazyListState()
+    
+    // Detectar dirección del scroll para ocultar/mostrar barra
+    var previousScrollValue by remember { mutableIntStateOf(0) }
+    
+    LaunchedEffect(lazyListState.firstVisibleItemScrollOffset) {
+        val currentScroll = lazyListState.firstVisibleItemScrollOffset + 
+                           lazyListState.firstVisibleItemIndex * 1000
+        val scrollDiff = currentScroll - previousScrollValue
+        
+        if (kotlin.math.abs(scrollDiff) > 10) {
+            if (scrollDiff > 0) {
+                onBottomBarVisibilityChange(false)
+            } else {
+                onBottomBarVisibilityChange(true)
+            }
+        }
+        
+        if (lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset < 50) {
+            onBottomBarVisibilityChange(true)
+        }
+        
+        previousScrollValue = currentScroll
+    }
     
     // Auto-open filter sheet when navigated from PlaceList with autoOpenFilters=true
     LaunchedEffect(autoOpenFilters) {
@@ -72,7 +104,7 @@ fun SearchScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(Spacing.spacingLg)
     ) {
         // Search Bar
         Row(
@@ -80,25 +112,25 @@ fun SearchScreen(
                 .fillMaxWidth()
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(CornerRadius.radiusLg)
                 )
-                .padding(8.dp),
+                .padding(Spacing.spacingXs),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Filled.Search,
-                contentDescription = "Search",
-                modifier = Modifier.padding(start = 8.dp),
+                contentDescription = Strings.cdSearch,
+                modifier = Modifier.padding(start = Spacing.spacingMd),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Buscar lugares...") },
+                placeholder = { Text(Strings.searchPlaceholder) },
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = Spacing.spacingMd),
                 singleLine = true
             )
             
@@ -106,7 +138,7 @@ fun SearchScreen(
                 IconButton(onClick = { searchQuery = "" }) {
                     Icon(
                         imageVector = Icons.Filled.Clear,
-                        contentDescription = "Clear"
+                        contentDescription = Strings.cdClear
                     )
                 }
             }
@@ -117,12 +149,12 @@ fun SearchScreen(
             }) {
                 Icon(
                     imageVector = Icons.Filled.FilterList,
-                    contentDescription = "Filters"
+                    contentDescription = Strings.cdFilter
                 )
             }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.spacingLg))
         
         // Category Chips
         FlowRow(
@@ -134,9 +166,17 @@ fun SearchScreen(
                     selected = uiState.selectedCategory == category,
                     onClick = { viewModel.filterByCategory(category) },
                     label = { 
-                        Text(category?.toString()?.replace("_", " ") ?: "Todas")
+                        Text(
+                            when (category) {
+                                null -> Strings.searchAllCategories
+                                PlaceCategory.EAT -> Strings.categoryEat
+                                PlaceCategory.STAY -> Strings.categoryStay
+                                PlaceCategory.ACTIVITY -> Strings.categoryActivity
+                                PlaceCategory.FAVORITES -> Strings.homeFavorites
+                            }
+                        )
                     },
-                    modifier = Modifier.padding(end = 8.dp, bottom = 8.dp)
+                    modifier = Modifier.padding(end = Spacing.spacingMd, bottom = Spacing.spacingMd)
                 )
             }
         }
@@ -146,27 +186,27 @@ fun SearchScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = Spacing.spacingMd),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Filtros activos ✓",
+                    Strings.searchFiltersActive,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    "Limpiar",
+                    Strings.searchClear,
                     modifier = Modifier
                         .clickable { viewModel.clearFilters() }
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = Spacing.spacingMd),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )
             }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.spacingLg))
         
         // Results, History, or Loading
         when {
@@ -185,7 +225,7 @@ fun SearchScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Error: ${uiState.error}",
+                            text = "${Strings.errorGeneric}: ${uiState.error}",
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -194,15 +234,15 @@ fun SearchScreen(
             searchQuery.isEmpty() && uiState.places.isEmpty() -> {
                 Column {
                     Text(
-                        text = "Búsquedas recientes",
+                        text = Strings.searchRecent,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        modifier = Modifier.padding(bottom = Spacing.spacingMd)
                     )
                     
                     if (recentSearches.isEmpty()) {
                         Text(
-                            text = "No hay búsquedas recientes",
+                            text = Strings.searchNoRecent,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -225,47 +265,48 @@ fun SearchScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
+                            .padding(Spacing.spacingLg),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Sin resultados",
+                            text = Strings.searchNoResults,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = Spacing.spacingMd)
                         )
                         Text(
-                            text = "No se encontraron lugares que coincidan con tu búsqueda y filtros.",
+                            text = Strings.searchNoResultsMessage,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            modifier = Modifier.padding(horizontal = Spacing.spacingLg, vertical = Spacing.spacingMd),
+                            textAlign = TextAlign.Center
                         )
                         OutlinedButton(
                             onClick = { viewModel.clearFilters() },
-                            modifier = Modifier.padding(top = 16.dp)
+                            modifier = Modifier.padding(top = Spacing.spacingLg)
                         ) {
-                            Text("Limpiar filtros")
+                            Text(Strings.searchClearFilters)
                         }
                     }
                 } else {
                     // Con resultados
                     LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        state = lazyListState
                     ) {
                         item {
                             Text(
-                                text = "Resultados para \"${uiState.searchQuery}\"",
+                                text = Strings.searchResultsFor(uiState.searchQuery),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 12.dp)
+                                modifier = Modifier.padding(bottom = Spacing.spacingMd)
                             )
                             Text(
-                                text = "Se encontraron ${uiState.places.size} lugar${if (uiState.places.size != 1) "es" else ""}",
+                                text = Strings.searchPlacesFound(uiState.places.size),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(bottom = 16.dp)
+                                modifier = Modifier.padding(bottom = Spacing.spacingLg)
                             )
                         }
                         items(uiState.places) { place ->
@@ -311,13 +352,13 @@ private fun SearchHistoryItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onSelect(query) }
-            .padding(vertical = 12.dp),
+            .padding(vertical = Spacing.spacingMd),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Filled.Search,
             contentDescription = null,
-            modifier = Modifier.padding(end = 12.dp),
+            modifier = Modifier.padding(end = Spacing.spacingMd),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         
@@ -330,7 +371,7 @@ private fun SearchHistoryItem(
         IconButton(onClick = onRemove, modifier = Modifier.padding(0.dp)) {
             Icon(
                 imageVector = Icons.Filled.Clear,
-                contentDescription = "Remove",
+                contentDescription = Strings.actionDelete,
                 modifier = Modifier.padding(end = 0.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

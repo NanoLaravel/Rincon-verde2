@@ -2,9 +2,9 @@ package com.example.rincon_verde2.ui.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rincon_verde2.data.repository.UserRepository
 import com.example.rincon_verde2.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userRepository: com.example.rincon_verde2.data.repository.UserRepository
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -26,8 +26,6 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
                 val result = userRepository.getCurrentUser()
@@ -90,8 +88,19 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Cierra la sesión del usuario.
+     * Limpia el token y los datos locales.
+     */
     fun logout() {
-        _uiState.value = ProfileUiState()
+        viewModelScope.launch {
+            try {
+                userRepository.logout()
+            } catch (_: Exception) {
+                // Ignorar errores de logout
+            }
+            _uiState.value = ProfileUiState()
+        }
     }
 
     fun clearError() {
