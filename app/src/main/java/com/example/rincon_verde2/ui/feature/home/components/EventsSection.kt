@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import coil.compose.AsyncImage
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
@@ -89,18 +90,17 @@ fun EventCard(event: Event) {
         .padding(Spacing.spacingMd),
       verticalAlignment = Alignment.CenterVertically
     ) {
-      Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(end = Spacing.spacingLg)
-      ) {
-        AsyncImage(
-          model = event.image,
-          contentDescription = event.title,
-          modifier = Modifier
-            .width(ComponentSize.thumbnailLarge)
-            .fillMaxHeight(),
-          contentScale = ContentScale.Crop)
-      }
+      AsyncImage(
+        model = event.image,
+        contentDescription = event.title,
+        modifier = Modifier
+          .width(ComponentSize.thumbnailLarge)
+          .height(ComponentSize.thumbnailMedium)
+          .clip(RoundedCornerShape(CornerRadius.radiusSm)),
+        contentScale = ContentScale.Crop
+      )
+
+      Spacer(modifier = Modifier.width(Spacing.spacingMd))
 
       Column(
         modifier = Modifier.weight(1f)

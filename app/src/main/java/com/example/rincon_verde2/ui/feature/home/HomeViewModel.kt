@@ -38,7 +38,7 @@ class HomeViewModel @Inject constructor(
 
                 // Cargar lugares y eventos en paralelo
                 val placesDeferred = async { placeRepository.getPlaces() }
-                val eventsDeferred = async { eventRepository.getEvents() }
+                val eventsDeferred = async { eventRepository.getUpcomingEvents() }
                 val favoritesDeferred = async { placeRepository.getFavoritePlaces() }
 
                 val places = placesDeferred.await()
@@ -46,8 +46,12 @@ class HomeViewModel @Inject constructor(
                 val favorites = favoritesDeferred.await()
 
                 Log.d("HomeViewModel", "Loaded ${places.size} places")
+                Log.d("HomeViewModel", "Loaded ${events.size} events")
                 places.take(3).forEach { place ->
                     Log.d("HomeViewModel", "Place: ${place.name}, imageUrl=${place.imageUrl}")
+                }
+                events.forEach { event ->
+                    Log.d("HomeViewModel", "Event: ${event.title}, date=${event.date}")
                 }
 
                 _uiState.value = _uiState.value.copy(
@@ -59,6 +63,7 @@ class HomeViewModel @Inject constructor(
 
                 _favorites.value = favorites.map { place -> place.id }.toSet()
             } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error loading data: ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Error desconocido"
@@ -70,9 +75,12 @@ class HomeViewModel @Inject constructor(
     fun loadEvents() {
         viewModelScope.launch {
             try {
-                val events = eventRepository.getEvents()
+                Log.d("HomeViewModel", "Loading upcoming events...")
+                val events = eventRepository.getUpcomingEvents()
+                Log.d("HomeViewModel", "Loaded ${events.size} upcoming events")
                 _uiState.value = _uiState.value.copy(events = events)
             } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error loading events: ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
                     error = e.message ?: "Error cargando eventos"
                 )

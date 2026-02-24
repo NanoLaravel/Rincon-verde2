@@ -29,10 +29,12 @@ class UserRepositoryImpl @Inject constructor(
         println("DEBUG: LoginRequest created: $request")
         val response: LoginResponse = apiService.login(request)
         println("DEBUG: API Response received: $response")
+        println("DEBUG: Response success=${response.success}, user=${response.user}, token=${response.token}, message=${response.message}")
 
-        if (response.success && response.user != null) {
+        // Check if response is valid (has user and token) OR if success is explicitly true
+        if (response.isValid() || (response.success && response.user != null)) {
             // Persist user locally
-            val userEntity = response.user.toEntity()
+            val userEntity = response.user!!.toEntity()
             userDao.insertUser(userEntity)
             response.token?.let { tokenManager.saveToken(it) }
 
@@ -64,24 +66,34 @@ class UserRepositoryImpl @Inject constructor(
         password: String,
         displayName: String
     ): Result<User> = try {
+        println("DEBUG: Attempting register with email=$email, name=$displayName")
         val request = RegisterRequest(
             name = displayName,
             email = email,
             password = password,
             passwordConfirmation = password
         )
+        println("DEBUG: RegisterRequest created: $request")
 
         val response = apiService.register(request)
+        println("DEBUG: Register API Response received: $response")
+        println("DEBUG: Response success=${response.success}, user=${response.user}, token=${response.token}, message=${response.message}")
 
-        if (response.success && response.user != null) {
-            val userEntity = response.user.toEntity()
+        // Check if response is valid (has user and token) OR if success is explicitly true
+        if (response.isValid() || (response.success && response.user != null)) {
+            val userEntity = response.user!!.toEntity()
             userDao.insertUser(userEntity)
             response.token?.let { tokenManager.saveToken(it) }
+            println("DEBUG: Registration successful for user: ${response.user.email}")
             Result.success(response.user.toDomain())
         } else {
-            Result.failure(Exception(response.message ?: "Registration failed"))
+            val errorMsg = response.message ?: "Registration failed - no user data in response"
+            println("DEBUG: Registration failed: $errorMsg")
+            Result.failure(Exception(errorMsg))
         }
     } catch (e: Exception) {
+        println("DEBUG: API register failed with exception: ${e.javaClass.simpleName}: ${e.message}")
+        e.printStackTrace()
         Result.failure(Exception("Registration failed: ${e.message}"))
     }
 

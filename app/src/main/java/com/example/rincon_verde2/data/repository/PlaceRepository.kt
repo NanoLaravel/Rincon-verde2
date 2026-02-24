@@ -1,7 +1,6 @@
 package com.example.rincon_verde2.data.repository
 
 import com.example.rincon_verde2.domain.model.Place
-import com.example.rincon_verde2.domain.model.Event
 
 interface PlaceRepository {
     suspend fun getPlaces(): List<Place>
@@ -18,10 +17,4 @@ interface PlaceRepository {
     suspend fun addFavorite(placeId: String): Boolean
     suspend fun removeFavorite(placeId: String): Boolean
     suspend fun isFavorite(placeId: String): Boolean
-}
-
-interface EventRepository {
-    suspend fun getEvents(): List<Event>
-    suspend fun getEventById(id: String): Event?
-    suspend fun getUpcomingEvents(): List<Event>
 }

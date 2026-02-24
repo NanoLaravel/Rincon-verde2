@@ -68,10 +68,34 @@ interface ApiService {
     // ============= EVENTS =============
 
     /**
-     * Obtener eventos
+     * Obtener todos los eventos
      */
     @GET("/api/events")
     suspend fun getEvents(): EventsResponse
+
+    /**
+     * Obtener eventos destacados
+     */
+    @GET("/api/events/featured")
+    suspend fun getFeaturedEvents(): EventsResponse
+
+    /**
+     * Obtener eventos próximos
+     */
+    @GET("/api/events/upcoming")
+    suspend fun getUpcomingEvents(): EventsResponse
+
+    /**
+     * Obtener eventos en curso
+     */
+    @GET("/api/events/ongoing")
+    suspend fun getOngoingEvents(): EventsResponse
+
+    /**
+     * Obtener eventos por lugar
+     */
+    @GET("/api/events/place/{placeId}")
+    suspend fun getEventsByPlace(@Path("placeId") placeId: String): EventsResponse
 
     /**
      * Obtener evento por ID
