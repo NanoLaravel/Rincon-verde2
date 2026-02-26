@@ -25,11 +25,17 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            buildConfigField("String", "API_BASE_URL", "\"https://api.rinconverde.com/\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isDebuggable = true
+            buildConfigField("String", "API_BASE_URL", "\"https://api.rinconverde.com/\"")
         }
     }
     compileOptions {
@@ -46,6 +52,7 @@ android {
   }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
