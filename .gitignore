@@ -13,3 +13,21 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Sensitive files
+keystore/
+*.jks
+*.keystore
+*.properties
+
+# API Keys - NO COMMIT
+env.properties
+.env
+api_key.properties
+
+# Logs
+*.log
+
+# Test results
+/test-results/
+/androidTests/
