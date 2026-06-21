@@ -29,10 +29,10 @@ class UserRepositoryImpl @Inject constructor(
         println("DEBUG: LoginRequest created: $request")
         val response: LoginResponse = apiService.login(request)
         println("DEBUG: API Response received: $response")
-        println("DEBUG: Response success=${response.success}, user=${response.user}, token=${response.token}, message=${response.message}")
+        println("DEBUG: Response user=${response.user}, token=${response.token}, message=${response.message}")
 
-        // Check if response is valid (has user and token) OR if success is explicitly true
-        if (response.isValid() || (response.success && response.user != null)) {
+        // Check if response is valid (has user and token)
+        if (response.isValid()) {
             // Persist user locally
             val userEntity = response.user!!.toEntity()
             userDao.insertUser(userEntity)
@@ -77,10 +77,10 @@ class UserRepositoryImpl @Inject constructor(
 
         val response = apiService.register(request)
         println("DEBUG: Register API Response received: $response")
-        println("DEBUG: Response success=${response.success}, user=${response.user}, token=${response.token}, message=${response.message}")
+        println("DEBUG: Response user=${response.user}, token=${response.token}, message=${response.message}")
 
-        // Check if response is valid (has user and token) OR if success is explicitly true
-        if (response.isValid() || (response.success && response.user != null)) {
+        // Check if response is valid (has user and token)
+        if (response.isValid()) {
             val userEntity = response.user!!.toEntity()
             userDao.insertUser(userEntity)
             response.token?.let { tokenManager.saveToken(it) }

@@ -137,7 +137,8 @@ class PlaceRepositoryImpl @Inject constructor(
 
     // Mappers
     private fun PlaceDto.toDomain(): Place {
-        val imageUrl = images.firstOrNull()?.let { "https://api.nortedesantander.com/storage/${it.path}" } ?: ""
+        val allImageUrls = images.map { "https://api.nortedesantander.com/storage/${it.path}" }
+        val imageUrl = allImageUrls.firstOrNull() ?: ""
         Log.d("PlaceRepositoryImpl", "PlaceDto.toDomain: $name, imageUrl=$imageUrl, images=${images.size}")
         
         val latStr = latitude?.jsonPrimitive?.content
@@ -157,6 +158,7 @@ class PlaceRepositoryImpl @Inject constructor(
             rating = rating,
             reviewCount = reviews.size,
             imageUrl = imageUrl,
+            imageUrls = allImageUrls,
             phone = phone ?: "",
             address = address ?: "",
             hours = ""
@@ -166,6 +168,7 @@ class PlaceRepositoryImpl @Inject constructor(
     private fun PlaceDto.toEntity(): PlaceEntity {
         val latStr = latitude?.jsonPrimitive?.content
         val lonStr = longitude?.jsonPrimitive?.content
+        val allImageUrls = images.joinToString(",") { "https://api.nortedesantander.com/storage/${it.path}" }
         
         return PlaceEntity(
             id = id.toString(),
@@ -176,6 +179,7 @@ class PlaceRepositoryImpl @Inject constructor(
             rating = rating,
             reviewCount = reviews.size,
             imageUrl = images.firstOrNull()?.let { "https://api.nortedesantander.com/storage/${it.path}" } ?: "",
+            imageUrls = allImageUrls,
             phone = phone ?: "",
             address = address ?: "",
             hours = ""
@@ -197,6 +201,7 @@ class PlaceRepositoryImpl @Inject constructor(
             rating = rating,
             reviewCount = reviewCount,
             imageUrl = imageUrl,
+            imageUrls = imageUrls.split(",").filter { it.isNotBlank() },
             phone = phone,
             address = address,
             hours = hours

@@ -55,6 +55,7 @@ fun PlaceDetailScreen(
       item {
         HeroImage(
           imageUrl = place.imageUrl,
+          imageUrls = place.imageUrls,
           rating = place.rating,
           priceCategory = place.priceCategory
         )

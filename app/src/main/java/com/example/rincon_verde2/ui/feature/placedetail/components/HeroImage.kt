@@ -1,11 +1,19 @@
 package com.example.rincon_verde2.ui.feature.placedetail.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -17,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -27,30 +36,61 @@ import coil.compose.AsyncImage
 @Composable
 fun HeroImage(
   imageUrl: String,
+  imageUrls: List<String> = emptyList(),
   rating: Float,
   priceCategory: Int = 1, // 1 = $, 2 = $$, 3 = $$$
   modifier: Modifier = Modifier
 ) {
   val priceText = when (priceCategory) {
     1 -> "$"
-    2 -> "$$"
-    3 -> "$$$"
+    2 -> "$$$"
+    3 -> "$$$$"
     else -> "$"
   }
+
+  // Si no hay lista de imágenes, usamos la única disponible
+  val displayImages = if (imageUrls.isEmpty()) listOf(imageUrl) else imageUrls
+  val pagerState = rememberPagerState(pageCount = { displayImages.size })
 
   Box(
     modifier = modifier
       .fillMaxWidth()
       .height(280.dp)
   ) {
-    AsyncImage(
-      model = imageUrl,
-      contentDescription = "Imagen del lugar",
-      modifier = Modifier
-        .fillMaxWidth()
-        .height(280.dp),
-      contentScale = ContentScale.Crop
-    )
+    HorizontalPager(
+      state = pagerState,
+      modifier = Modifier.fillMaxSize()
+    ) { page ->
+      AsyncImage(
+        model = displayImages[page],
+        contentDescription = "Imagen del lugar ${page + 1}",
+        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop
+      )
+    }
+
+    // Indicador de páginas (Dots)
+    if (displayImages.size > 1) {
+      Row(
+        Modifier
+          .wrapContentHeight()
+          .fillMaxWidth()
+          .align(Alignment.BottomCenter)
+          .padding(bottom = 8.dp),
+        horizontalArrangement = Arrangement.Center
+      ) {
+        repeat(displayImages.size) { iteration ->
+          val color = if (pagerState.currentPage == iteration) Color.White else Color.White.copy(alpha = 0.5f)
+          Box(
+            modifier = Modifier
+              .padding(2.dp)
+              .clip(CircleShape)
+              .background(color)
+              .size(8.dp)
+          )
+        }
+      }
+    }
 
     // Rating badge - esquina superior derecha
     Card(
@@ -60,9 +100,9 @@ fun HeroImage(
       shape = RoundedCornerShape(8.dp),
       colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f))
     ) {
-      Box(
+      Row(
         modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-        contentAlignment = Alignment.Center
+        verticalAlignment = Alignment.CenterVertically
       ) {
         Icon(
           imageVector = Icons.Default.Star,

@@ -52,6 +52,7 @@ class PlaceDetailViewModel @Inject constructor(
                         id = place.id,
                         name = place.name,
                         imageUrl = place.imageUrl,
+                        imageUrls = place.imageUrls,
                         rating = place.rating,
                         location = place.location,
                         description = place.description,

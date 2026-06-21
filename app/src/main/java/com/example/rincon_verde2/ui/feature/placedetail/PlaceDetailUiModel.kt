@@ -31,6 +31,7 @@ data class PlaceDetail(
   val rating: Float,
   val priceCategory: Int = 1, // 1 = $, 2 = $$, 3 = $$$
   val imageUrl: String,
+  val imageUrls: List<String> = emptyList(),
   val location: String,
   val description: String,
   val amenities: List<Amenity>,

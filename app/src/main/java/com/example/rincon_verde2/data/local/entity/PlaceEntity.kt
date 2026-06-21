@@ -14,6 +14,7 @@ data class PlaceEntity(
     val rating: Float,
     val reviewCount: Int,
     val imageUrl: String,
+    val imageUrls: String = "", // URLs separadas por comas
     val phone: String,
     val address: String,
     val hours: String,

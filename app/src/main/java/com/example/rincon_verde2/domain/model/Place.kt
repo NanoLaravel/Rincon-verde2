@@ -13,6 +13,7 @@ data class Place(
     val rating: Float,
     val reviewCount: Int,
     val imageUrl: String,
+    val imageUrls: List<String> = emptyList(),
     val phone: String,
     val address: String,
     val hours: String

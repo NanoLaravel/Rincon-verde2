@@ -17,7 +17,7 @@ import com.example.rincon_verde2.data.local.entity.UserEntity
         FavoriteEntity::class,
         UserEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

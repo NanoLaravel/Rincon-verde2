@@ -36,7 +36,7 @@ data class RegisterRequest(
 @Serializable
 data class LoginResponse(
     @SerialName("success")
-    val success: Boolean = false,
+    val success: Boolean? = null,
     @SerialName("message")
     val message: String? = null,
     @SerialName("user")
@@ -46,4 +46,6 @@ data class LoginResponse(
 ) {
     // Helper to check if response is valid (has user and token)
     fun isValid(): Boolean = user != null && token != null
+    
+    val isSuccessful: Boolean get() = success ?: isValid()
 }
