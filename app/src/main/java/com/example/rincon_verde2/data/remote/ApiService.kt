@@ -20,49 +20,49 @@ interface ApiService {
     /**
      * Obtener lista de places
      */
-    @GET("/api/places")
+    @GET("places")
     suspend fun getPlaces(): PlacesResponse
 
     /**
      * Obtener place por ID
      */
-    @GET("/api/places/{id}")
+    @GET("places/{id}")
     suspend fun getPlaceById(@Path("id") placeId: String): PlaceDto
 
     /**
      * Buscar places por nombre
      */
-    @GET("/api/places/search/{name}")
-    suspend fun searchPlaces(@Path("name") name: String): List<PlaceDto>
+    @GET("places/search/{name}")
+    suspend fun searchPlaces(@Path("name") name: String): PlacesResponse
 
     /**
      * Obtener places con rating entre min y max
      */
-    @GET("/api/places/rating/{min}/{max}")
-    suspend fun getPlacesByRating(@Path("min") min: Float, @Path("max") max: Float): List<PlaceDto>
+    @GET("places/rating/{min}/{max}")
+    suspend fun getPlacesByRating(@Path("min") min: Float, @Path("max") max: Float): PlacesResponse
 
     /**
      * Obtener places por categoría
      */
-    @GET("/api/places/category/{category}")
-    suspend fun getPlacesByCategory(@Path("category") category: String): List<PlaceDto>
+    @GET("places/category/{category}")
+    suspend fun getPlacesByCategory(@Path("category") category: String): PlacesResponse
 
     /**
      * Obtener places por tipo
      */
-    @GET("/api/places/type/{type}")
-    suspend fun getPlacesByType(@Path("type") type: String): List<PlaceDto>
+    @GET("places/type/{type}")
+    suspend fun getPlacesByType(@Path("type") type: String): PlacesResponse
 
     /**
      * Obtener los mejores lugares (por reviews/rating)
      */
-    @GET("/api/places/best-reviews")
-    suspend fun getBestReviewedPlaces(): List<PlaceDto>
+    @GET("places/best-reviews")
+    suspend fun getBestReviewedPlaces(): PlacesResponse
 
     /**
      * Obtener reviews de un lugar específico
      */
-    @GET("/api/places/{placeId}/reviews")
+    @GET("places/{placeId}/reviews")
     suspend fun getPlaceReviews(@Path("placeId") placeId: String): Any
 
     // ============= EVENTS =============
@@ -70,37 +70,37 @@ interface ApiService {
     /**
      * Obtener todos los eventos
      */
-    @GET("/api/events")
+    @GET("events")
     suspend fun getEvents(): EventsResponse
 
     /**
      * Obtener eventos destacados
      */
-    @GET("/api/events/featured")
+    @GET("events/featured")
     suspend fun getFeaturedEvents(): EventsResponse
 
     /**
      * Obtener eventos próximos
      */
-    @GET("/api/events/upcoming")
+    @GET("events/upcoming")
     suspend fun getUpcomingEvents(): EventsResponse
 
     /**
      * Obtener eventos en curso
      */
-    @GET("/api/events/ongoing")
+    @GET("events/ongoing")
     suspend fun getOngoingEvents(): EventsResponse
 
     /**
      * Obtener eventos por lugar
      */
-    @GET("/api/events/place/{placeId}")
+    @GET("events/place/{placeId}")
     suspend fun getEventsByPlace(@Path("placeId") placeId: String): EventsResponse
 
     /**
      * Obtener evento por ID
      */
-    @GET("/api/events/{id}")
+    @GET("events/{id}")
     suspend fun getEventById(@Path("id") eventId: String): EventDto
 
     // ============= AUTHENTICATION =============
@@ -108,19 +108,19 @@ interface ApiService {
     /**
      * Login user with email and password
      */
-    @POST("/api/login")
+    @POST("login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
     /**
      * Register new user
      */
-    @POST("/api/register")
+    @POST("register")
     suspend fun register(@Body request: RegisterRequest): LoginResponse
 
     /**
      * Logout user
      */
-    @POST("/api/logout")
+    @POST("logout")
     suspend fun logout(): LoginResponse
 
     // ============= FAVORITES =============
@@ -128,19 +128,19 @@ interface ApiService {
     /**
      * Obtener lugares favoritos del usuario
      */
-    @GET("/api/favorites")
+    @GET("favorites")
     suspend fun getFavoritePlaces(): List<PlaceDto>
 
     /**
      * Agregar lugar a favoritos
      */
-    @POST("/api/places/{placeId}/favorite")
+    @POST("places/{placeId}/favorite")
     suspend fun addFavorite(@Path("placeId") placeId: String): Any
 
     /**
      * Eliminar lugar de favoritos
      */
-    @DELETE("/api/places/{placeId}/favorite")
+    @DELETE("places/{placeId}/favorite")
     suspend fun removeFavorite(@Path("placeId") placeId: String): Any
 }
 

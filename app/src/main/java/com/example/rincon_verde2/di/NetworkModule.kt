@@ -21,12 +21,8 @@ import java.util.concurrent.TimeUnit
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // CAMBIAR ESTA URL A TU API REAL
-    // Ejemplo para testing: https://jsonplaceholder.typicode.com/
-    // Ejemplo real: https://api.tuapp.com/
-    // Para tu API local usa la raíz (no duplicar /api en la baseUrl)
-    // Android requiere network_security_config.xml para permitir HTTP
-    private const val BASE_URL = "http://192.168.1.61/"
+    // URL de producción para la API en el VPS con el prefijo /api/
+    private const val BASE_URL = "https://api.nortedesantander.com/api/"
 
     @Singleton
     @Provides

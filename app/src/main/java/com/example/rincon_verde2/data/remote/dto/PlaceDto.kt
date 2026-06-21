@@ -3,6 +3,9 @@ package com.example.rincon_verde2.data.remote.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonPrimitive
+
 @Serializable
 data class PlaceDto(
     @SerialName("id")
@@ -14,9 +17,9 @@ data class PlaceDto(
     @SerialName("address")
     val address: String? = null,
     @SerialName("latitude")
-    val latitude: String? = null,
+    val latitude: JsonElement? = null,
     @SerialName("longitude")
-    val longitude: String? = null,
+    val longitude: JsonElement? = null,
     @SerialName("phone")
     val phone: String? = null,
     @SerialName("website")
@@ -45,7 +48,8 @@ data class CategoryDto(
 @Serializable
 data class ImageDto(
     @SerialName("id") val id: Int,
-    @SerialName("place_id") val placeId: Int,
+    @SerialName("imageable_id") val imageableId: Int? = null,
+    @SerialName("place_id") val placeId: Int? = null,
     @SerialName("path") val path: String,
     @SerialName("description") val description: String? = null
 )
@@ -53,12 +57,13 @@ data class ImageDto(
 @Serializable
 data class ReviewDto(
     @SerialName("id") val id: Int,
-    @SerialName("place_id") val placeId: Int,
-    @SerialName("user_id") val userId: Int,
-    @SerialName("rating") val rating: Float,
+    @SerialName("place_id") val placeId: Int? = null,
+    @SerialName("user_id") val userId: Int? = null,
+    @SerialName("rating") val rating: Float = 0f,
     @SerialName("comment") val comment: String? = null,
     @SerialName("created_at") val createdAt: String? = null
 )
+
 @Serializable
 data class EventDto(
     @SerialName("id")
@@ -82,9 +87,9 @@ data class EventDto(
     @SerialName("price")
     val price: String? = null,
     @SerialName("latitude")
-    val latitude: String? = null,
+    val latitude: JsonElement? = null,
     @SerialName("longitude")
-    val longitude: String? = null,
+    val longitude: JsonElement? = null,
     @SerialName("place_id")
     val placeId: Int? = null,
     @SerialName("place")

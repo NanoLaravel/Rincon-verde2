@@ -8,6 +8,7 @@ import com.example.rincon_verde2.data.remote.dto.EventDto
 import com.example.rincon_verde2.data.repository.EventRepository
 import com.example.rincon_verde2.domain.model.Event
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 class EventRepositoryImpl @Inject constructor(
@@ -17,7 +18,7 @@ class EventRepositoryImpl @Inject constructor(
 
     companion object {
         private const val TAG = "EventRepository"
-        private const val BASE_URL = "http://192.168.1.61"
+        private const val BASE_URL = "https://api.nortedesantander.com"
     }
 
     override suspend fun getEvents(): List<Event> {
@@ -77,21 +78,26 @@ class EventRepositoryImpl @Inject constructor(
 
     override suspend fun getUpcomingEvents(): List<Event> {
         return try {
-            Log.d(TAG, "Fetching upcoming events from API")
+            Log.d(TAG, "Fetching upcoming events from: https://api.nortedesantander.com/api/events/upcoming")
             val response = apiService.getUpcomingEvents()
             Log.d(TAG, "Upcoming events response: success=${response.success}, count=${response.data.size}")
             
             val events = response.data.map { it.toDomain() }
-            
-            // Guardar en BD local
             eventDao.insertEvents(response.data.map { it.toEntity() })
-            
             events
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching upcoming events: ${e.message}", e)
-            // Para eventos futuros, usar fecha de hoy
-            val today = java.time.LocalDate.now().toString()
-            eventDao.getUpcomingEvents(today).first().map { it.toDomain() }
+            Log.e(TAG, "Error fetching upcoming events: ${e.message}. Trying fallback to all events.", e)
+            try {
+                // Si falla el endpoint de próximos (404), intentamos traer todos
+                val response = apiService.getEvents()
+                val events = response.data.map { it.toDomain() }
+                eventDao.insertEvents(response.data.map { it.toEntity() })
+                events
+            } catch (e2: Exception) {
+                Log.e(TAG, "Fallback also failed: ${e2.message}")
+                val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                eventDao.getUpcomingEvents(today).first().map { it.toDomain() }
+            }
         }
     }
 
@@ -141,12 +147,16 @@ class EventRepositoryImpl @Inject constructor(
             ""
         }
         Log.d(TAG, "EventDto.toDomain: $title, image=$fullImageUrl")
+        
+        val latStr = latitude?.jsonPrimitive?.content
+        val lonStr = longitude?.jsonPrimitive?.content
+        
         return Event(
             id = id.toString(),
             title = title,
             description = description ?: "",
             date = startDate?.substringBefore("T") ?: "",
-            location = location ?: place?.name ?: "",
+            location = location ?: place?.name ?: listOfNotNull(latStr, lonStr).joinToString(","),
             image = fullImageUrl
         )
     }
@@ -157,12 +167,16 @@ class EventRepositoryImpl @Inject constructor(
         } else {
             ""
         }
+        
+        val latStr = latitude?.jsonPrimitive?.content
+        val lonStr = longitude?.jsonPrimitive?.content
+        
         return EventEntity(
             id = id.toString(),
             title = title,
             description = description ?: "",
             date = startDate?.substringBefore("T") ?: "",
-            location = location ?: place?.name ?: "",
+            location = location ?: place?.name ?: listOfNotNull(latStr, lonStr).joinToString(","),
             image = fullImageUrl
         )
     }

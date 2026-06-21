@@ -5,10 +5,12 @@ import com.example.rincon_verde2.data.local.dao.PlaceDao
 import com.example.rincon_verde2.data.local.entity.PlaceEntity
 import com.example.rincon_verde2.data.remote.ApiService
 import com.example.rincon_verde2.data.remote.dto.PlaceDto
+import com.example.rincon_verde2.data.remote.dto.PlacesResponse
 import com.example.rincon_verde2.data.repository.PlaceRepository
 import com.example.rincon_verde2.domain.model.Place
 import com.example.rincon_verde2.domain.model.PlaceCategory
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 class PlaceRepositoryImpl @Inject constructor(
@@ -18,16 +20,15 @@ class PlaceRepositoryImpl @Inject constructor(
 
     override suspend fun getPlaces(): List<Place> {
         return try {
-            // Intentar obtener de API
+            Log.d("PlaceRepositoryImpl", "Fetching places from: https://api.nortedesantander.com/api/places")
             val response = apiService.getPlaces()
+            Log.d("PlaceRepositoryImpl", "Response success. Found ${response.data.size} places")
             val places = response.data.map { it.toDomain() }
             
-            // Guardar en BD local
             placeDao.insertPlaces(response.data.map { it.toEntity() })
-            
             places
         } catch (e: Exception) {
-            // Fallback a datos locales
+            Log.e("PlaceRepositoryImpl", "Error fetching places: ${e.message}", e)
             placeDao.getAllPlaces().first().map { it.toDomain() }
         }
     }
@@ -51,9 +52,9 @@ class PlaceRepositoryImpl @Inject constructor(
     override suspend fun getPlacesByCategory(category: String): List<Place> {
         return try {
             val response = apiService.getPlacesByCategory(category)
-            val places = response.map { it.toDomain() }
+            val places = response.data.map { it.toDomain() }
 
-            placeDao.insertPlaces(response.map { it.toEntity() })
+            placeDao.insertPlaces(response.data.map { it.toEntity() })
 
             places
         } catch (e: Exception) {
@@ -70,54 +71,36 @@ class PlaceRepositoryImpl @Inject constructor(
     ): List<Place> {
         return try {
             Log.d("PlaceRepositoryImpl", "====== searchPlaces() START ======")
-            Log.d("PlaceRepositoryImpl", "Parameters received:")
-            Log.d("PlaceRepositoryImpl", "  name=$name (isNullOrEmpty=${name.isNullOrEmpty()})")
-            Log.d("PlaceRepositoryImpl", "  category=$category (isNullOrEmpty=${category.isNullOrEmpty()})")
-            Log.d("PlaceRepositoryImpl", "  minRating=$minRating (!=null: ${minRating != null})")
-            Log.d("PlaceRepositoryImpl", "  maxRating=$maxRating (!=null: ${maxRating != null})")
-            Log.d("PlaceRepositoryImpl", "  type=$type")
+            Log.d("PlaceRepositoryImpl", "Parameters received: name=$name, category=$category")
             
-            // Determinar qué endpoint usar según los filtros - PRIORIDAD es importante
-            val placeDtos: List<PlaceDto> = when {
-                // Si hay nombre, buscar por nombre
+            // Determinar qué endpoint usar según los filtros
+            val response: PlacesResponse = when {
                 !name.isNullOrEmpty() -> {
-                    Log.d("PlaceRepositoryImpl", "CONDICION 1: Usando searchPlaces(name)")
                     apiService.searchPlaces(name)
                 }
-                // Si hay rating (al menos minRating o maxRating), usar ese filtro
                 minRating != null || maxRating != null -> {
                     val min = minRating ?: 0f
                     val max = maxRating ?: 5f
-                    Log.d("PlaceRepositoryImpl", "CONDICION 2: Usando getPlacesByRating($min, $max)")
                     apiService.getPlacesByRating(min, max)
                 }
-                // Si hay tipo, usar el filtro de tipo
                 !type.isNullOrEmpty() -> {
-                    Log.d("PlaceRepositoryImpl", "CONDICION 3: Usando getPlacesByType($type)")
                     apiService.getPlacesByType(type)
                 }
-                // Si hay categoría, usar el filtro de categoría
                 !category.isNullOrEmpty() -> {
-                    Log.d("PlaceRepositoryImpl", "CONDICION 4: Usando getPlacesByCategory($category)")
                     apiService.getPlacesByCategory(category)
                 }
-                // Si no hay filtros específicos, obtener todos
                 else -> {
-                    Log.d("PlaceRepositoryImpl", "CONDICION 5: Ningún filtro - Usando getPlaces()")
-                    val allResponse = apiService.getPlaces()
-                    allResponse.data
+                    apiService.getPlaces()
                 }
             }
 
-            val places = placeDtos.map { it.toDomain() }
-            placeDao.insertPlaces(placeDtos.map { it.toEntity() })
+            val places = response.data.map { it.toDomain() }
+            placeDao.insertPlaces(response.data.map { it.toEntity() })
             
             Log.d("PlaceRepositoryImpl", "searchPlaces() returned ${places.size} places")
-            Log.d("PlaceRepositoryImpl", "====== searchPlaces() END ======")
             places
         } catch (e: Exception) {
             Log.e("PlaceRepositoryImpl", "Error searching places", e)
-            // Fallback a búsqueda local si hay nombre
             if (!name.isNullOrEmpty()) {
                 placeDao.searchPlaces(name).map { it.toDomain() }
             } else {
@@ -154,8 +137,12 @@ class PlaceRepositoryImpl @Inject constructor(
 
     // Mappers
     private fun PlaceDto.toDomain(): Place {
-        val imageUrl = images.firstOrNull()?.let { "http://192.168.1.61/storage/${it.path}" } ?: ""
+        val imageUrl = images.firstOrNull()?.let { "https://api.nortedesantander.com/storage/${it.path}" } ?: ""
         Log.d("PlaceRepositoryImpl", "PlaceDto.toDomain: $name, imageUrl=$imageUrl, images=${images.size}")
+        
+        val latStr = latitude?.jsonPrimitive?.content
+        val lonStr = longitude?.jsonPrimitive?.content
+        
         return Place(
             id = id.toString(),
             name = name,
@@ -166,7 +153,7 @@ class PlaceRepositoryImpl @Inject constructor(
                 "recreation", "other", "activity" -> PlaceCategory.ACTIVITY
                 else -> PlaceCategory.ACTIVITY
             },
-            location = address ?: listOfNotNull(latitude, longitude).joinToString(","),
+            location = address ?: listOfNotNull(latStr, lonStr).joinToString(","),
             rating = rating,
             reviewCount = reviews.size,
             imageUrl = imageUrl,
@@ -177,15 +164,18 @@ class PlaceRepositoryImpl @Inject constructor(
     }
 
     private fun PlaceDto.toEntity(): PlaceEntity {
+        val latStr = latitude?.jsonPrimitive?.content
+        val lonStr = longitude?.jsonPrimitive?.content
+        
         return PlaceEntity(
             id = id.toString(),
             name = name,
             description = description ?: "",
             category = type ?: "",
-            location = address ?: listOfNotNull(latitude, longitude).joinToString(","),
+            location = address ?: listOfNotNull(latStr, lonStr).joinToString(","),
             rating = rating,
             reviewCount = reviews.size,
-            imageUrl = images.firstOrNull()?.let { "http://192.168.1.61/storage/${it.path}" } ?: "",
+            imageUrl = images.firstOrNull()?.let { "https://api.nortedesantander.com/storage/${it.path}" } ?: "",
             phone = phone ?: "",
             address = address ?: "",
             hours = ""
