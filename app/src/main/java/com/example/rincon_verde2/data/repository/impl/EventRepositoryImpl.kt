@@ -37,6 +37,11 @@ class EventRepositoryImpl @Inject constructor(
             } while (currentPage <= lastPage)
             
             val events = allEventDtos.map { it.toDomain() }
+            
+            // Sincronización: Eliminar eventos locales que ya no existen en la API
+            val apiIds = allEventDtos.map { it.id.toString() }
+            eventDao.deleteEventsNotInList(apiIds)
+
             eventDao.insertEvents(allEventDtos.map { it.toEntity() })
             
             Log.d(TAG, "Full sync complete. Total events: ${events.size}")

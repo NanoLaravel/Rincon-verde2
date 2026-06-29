@@ -27,4 +27,7 @@ interface EventDao {
     
     @Query("DELETE FROM events")
     suspend fun deleteAllEvents()
+
+    @Query("DELETE FROM events WHERE id NOT IN (:ids)")
+    suspend fun deleteEventsNotInList(ids: List<String>)
 }

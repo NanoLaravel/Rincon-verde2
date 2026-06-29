@@ -35,6 +35,11 @@ class PlaceRepositoryImpl @Inject constructor(
             } while (currentPage <= lastPage)
             
             val places = allPlaceDtos.map { it.toDomain() }
+            
+            // Sincronización: Eliminar lugares locales que ya no existen en la API
+            val apiIds = allPlaceDtos.map { it.id.toString() }
+            placeDao.deletePlacesNotInList(apiIds)
+
             placeDao.insertPlaces(allPlaceDtos.map { it.toEntity() })
             
             Log.d("PlaceRepositoryImpl", "Full sync complete. Total places: ${places.size}")
@@ -75,6 +80,11 @@ class PlaceRepositoryImpl @Inject constructor(
             } while (currentPage <= lastPage)
 
             val places = allPlaceDtos.map { it.toDomain() }
+            
+            // Sincronización por categoría: Eliminar lugares locales de esta categoría que ya no están en la API
+            val apiIds = allPlaceDtos.map { it.id.toString() }
+            placeDao.deletePlacesByCategoryNotInList(category, apiIds)
+
             placeDao.insertPlaces(allPlaceDtos.map { it.toEntity() })
             places
         } catch (e: Exception) {

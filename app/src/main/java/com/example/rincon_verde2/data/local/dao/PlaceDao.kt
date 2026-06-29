@@ -41,6 +41,12 @@ interface PlaceDao {
     @Query("SELECT isFavorite FROM places WHERE id = :placeId")
     suspend fun isFavorite(placeId: String): Boolean?
     
+    @Query("DELETE FROM places WHERE id NOT IN (:ids)")
+    suspend fun deletePlacesNotInList(ids: List<String>)
+    
+    @Query("DELETE FROM places WHERE category = :category AND id NOT IN (:ids)")
+    suspend fun deletePlacesByCategoryNotInList(category: String, ids: List<String>)
+    
     @Query("DELETE FROM places")
     suspend fun deleteAllPlaces()
     
