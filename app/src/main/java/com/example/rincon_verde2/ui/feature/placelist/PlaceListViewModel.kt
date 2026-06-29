@@ -51,13 +51,20 @@ class PlaceListViewModel @Inject constructor(
       try {
         _uiState.value = PlaceListUiState(isLoading = true)
         
-        // Load all places and filter by category
-        val places = placeRepository.getPlaces()
-        val filteredPlaces = places.filter { it.category == category }
+        // Mapear categoría de la UI a término de búsqueda de la API
+        val apiCategory = when(category) {
+            PlaceCategory.EAT -> "restaurant"
+            PlaceCategory.STAY -> "hotel"
+            PlaceCategory.ACTIVITY -> "recreation"
+            else -> category.name.lowercase()
+        }
+        
+        // Cargar directamente desde el repositorio usando el filtro de la API
+        val places = placeRepository.getPlacesByCategory(apiCategory)
         
         _uiState.value = PlaceListUiState(
           isLoading = false,
-          places = filteredPlaces
+          places = places
         )
       } catch (e: Exception) {
         _uiState.value = PlaceListUiState(

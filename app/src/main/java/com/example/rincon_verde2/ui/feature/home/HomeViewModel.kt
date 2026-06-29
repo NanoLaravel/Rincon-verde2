@@ -120,16 +120,22 @@ class HomeViewModel @Inject constructor(
                     isLoading = true
                 )
 
-                val filtered = placeRepository.getPlacesByCategory(category.name)
+                // Mapear categoría de la UI a término de la API
+                val apiCategory = when(category) {
+                    PlaceCategory.EAT -> "restaurant"
+                    PlaceCategory.STAY -> "hotel"
+                    PlaceCategory.ACTIVITY -> "recreation"
+                    else -> category.name.lowercase()
+                }
+
+                val filtered = placeRepository.getPlacesByCategory(apiCategory)
+                
                 _uiState.value = _uiState.value.copy(
-                    places = if (category == PlaceCategory.ACTIVITY) {
-                        _uiState.value.places.filter { it.category == category }
-                    } else {
-                        filtered
-                    },
+                    places = filtered,
                     isLoading = false
                 )
             } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error filtering by category: ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Error filtrando"

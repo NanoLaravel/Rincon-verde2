@@ -20,15 +20,27 @@ class PlaceRepositoryImpl @Inject constructor(
 
     override suspend fun getPlaces(): List<Place> {
         return try {
-            Log.d("PlaceRepositoryImpl", "Fetching places from: https://api.nortedesantander.com/api/places")
-            val response = apiService.getPlaces()
-            Log.d("PlaceRepositoryImpl", "Response success. Found ${response.data.size} places")
-            val places = response.data.map { it.toDomain() }
+            val allPlaceDtos = mutableListOf<PlaceDto>()
+            var currentPage = 1
+            var lastPage = 1
             
-            placeDao.insertPlaces(response.data.map { it.toEntity() })
+            Log.d("PlaceRepositoryImpl", "Starting full sync of places...")
+            
+            do {
+                val response = apiService.getPlaces(page = currentPage, perPage = 50)
+                allPlaceDtos.addAll(response.data)
+                lastPage = response.lastPage ?: 1
+                Log.d("PlaceRepositoryImpl", "Fetched page $currentPage of $lastPage. Items so far: ${allPlaceDtos.size}")
+                currentPage++
+            } while (currentPage <= lastPage)
+            
+            val places = allPlaceDtos.map { it.toDomain() }
+            placeDao.insertPlaces(allPlaceDtos.map { it.toEntity() })
+            
+            Log.d("PlaceRepositoryImpl", "Full sync complete. Total places: ${places.size}")
             places
         } catch (e: Exception) {
-            Log.e("PlaceRepositoryImpl", "Error fetching places: ${e.message}", e)
+            Log.e("PlaceRepositoryImpl", "Error during full sync: ${e.message}", e)
             placeDao.getAllPlaces().first().map { it.toDomain() }
         }
     }
@@ -51,11 +63,19 @@ class PlaceRepositoryImpl @Inject constructor(
 
     override suspend fun getPlacesByCategory(category: String): List<Place> {
         return try {
-            val response = apiService.getPlacesByCategory(category)
-            val places = response.data.map { it.toDomain() }
+            val allPlaceDtos = mutableListOf<PlaceDto>()
+            var currentPage = 1
+            var lastPage: Int
+            
+            do {
+                val response = apiService.getPlacesByCategory(category, page = currentPage, perPage = 50)
+                allPlaceDtos.addAll(response.data)
+                lastPage = response.lastPage ?: 1
+                currentPage++
+            } while (currentPage <= lastPage)
 
-            placeDao.insertPlaces(response.data.map { it.toEntity() })
-
+            val places = allPlaceDtos.map { it.toDomain() }
+            placeDao.insertPlaces(allPlaceDtos.map { it.toEntity() })
             places
         } catch (e: Exception) {
             placeDao.getPlacesByCategory(category).first().map { it.toDomain() }
@@ -70,27 +90,27 @@ class PlaceRepositoryImpl @Inject constructor(
         type: String?
     ): List<Place> {
         return try {
-            Log.d("PlaceRepositoryImpl", "====== searchPlaces() START ======")
+            Log.d("PlaceRepositoryImpl", "====== searchPlaces() START (per_page 100) ======")
             Log.d("PlaceRepositoryImpl", "Parameters received: name=$name, category=$category")
             
             // Determinar qué endpoint usar según los filtros
             val response: PlacesResponse = when {
                 !name.isNullOrEmpty() -> {
-                    apiService.searchPlaces(name)
+                    apiService.searchPlaces(name, page = 1, perPage = 100)
                 }
                 minRating != null || maxRating != null -> {
                     val min = minRating ?: 0f
                     val max = maxRating ?: 5f
-                    apiService.getPlacesByRating(min, max)
+                    apiService.getPlacesByRating(min, max, page = 1, perPage = 100)
                 }
                 !type.isNullOrEmpty() -> {
-                    apiService.getPlacesByType(type)
+                    apiService.getPlacesByType(type, page = 1, perPage = 100)
                 }
                 !category.isNullOrEmpty() -> {
-                    apiService.getPlacesByCategory(category)
+                    apiService.getPlacesByCategory(category, page = 1, perPage = 100)
                 }
                 else -> {
-                    apiService.getPlaces()
+                    apiService.getPlaces(page = 1, perPage = 100)
                 }
             }
 

@@ -12,16 +12,20 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
     // ============= PLACES =============
 
     /**
-     * Obtener lista de places
+     * Obtener lista de places con paginación
      */
     @GET("places")
-    suspend fun getPlaces(): PlacesResponse
+    suspend fun getPlaces(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): PlacesResponse
 
     /**
      * Obtener place por ID
@@ -30,34 +34,54 @@ interface ApiService {
     suspend fun getPlaceById(@Path("id") placeId: String): PlaceDto
 
     /**
-     * Buscar places por nombre
+     * Buscar places por nombre con paginación
      */
     @GET("places/search/{name}")
-    suspend fun searchPlaces(@Path("name") name: String): PlacesResponse
+    suspend fun searchPlaces(
+        @Path("name") name: String,
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): PlacesResponse
 
     /**
-     * Obtener places con rating entre min y max
+     * Obtener places con rating entre min y max con paginación
      */
     @GET("places/rating/{min}/{max}")
-    suspend fun getPlacesByRating(@Path("min") min: Float, @Path("max") max: Float): PlacesResponse
+    suspend fun getPlacesByRating(
+        @Path("min") min: Float,
+        @Path("max") max: Float,
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): PlacesResponse
 
     /**
-     * Obtener places por categoría
+     * Obtener places por categoría con paginación
      */
     @GET("places/category/{category}")
-    suspend fun getPlacesByCategory(@Path("category") category: String): PlacesResponse
+    suspend fun getPlacesByCategory(
+        @Path("category") category: String,
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): PlacesResponse
 
     /**
-     * Obtener places por tipo
+     * Obtener places por tipo con paginación
      */
     @GET("places/type/{type}")
-    suspend fun getPlacesByType(@Path("type") type: String): PlacesResponse
+    suspend fun getPlacesByType(
+        @Path("type") type: String,
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): PlacesResponse
 
     /**
-     * Obtener los mejores lugares (por reviews/rating)
+     * Obtener los mejores lugares (por reviews/rating) con paginación
      */
     @GET("places/best-reviews")
-    suspend fun getBestReviewedPlaces(): PlacesResponse
+    suspend fun getBestReviewedPlaces(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): PlacesResponse
 
     /**
      * Obtener reviews de un lugar específico
@@ -68,34 +92,50 @@ interface ApiService {
     // ============= EVENTS =============
 
     /**
-     * Obtener todos los eventos
+     * Obtener todos los eventos con paginación
      */
     @GET("events")
-    suspend fun getEvents(): EventsResponse
+    suspend fun getEvents(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): EventsResponse
 
     /**
-     * Obtener eventos destacados
+     * Obtener eventos destacados con paginación
      */
     @GET("events/featured")
-    suspend fun getFeaturedEvents(): EventsResponse
+    suspend fun getFeaturedEvents(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): EventsResponse
 
     /**
-     * Obtener eventos próximos
+     * Obtener eventos próximos con paginación
      */
     @GET("events/upcoming")
-    suspend fun getUpcomingEvents(): EventsResponse
+    suspend fun getUpcomingEvents(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): EventsResponse
 
     /**
-     * Obtener eventos en curso
+     * Obtener eventos en curso con paginación
      */
     @GET("events/ongoing")
-    suspend fun getOngoingEvents(): EventsResponse
+    suspend fun getOngoingEvents(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): EventsResponse
 
     /**
-     * Obtener eventos por lugar
+     * Obtener eventos por lugar con paginación
      */
     @GET("events/place/{placeId}")
-    suspend fun getEventsByPlace(@Path("placeId") placeId: String): EventsResponse
+    suspend fun getEventsByPlace(
+        @Path("placeId") placeId: String,
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): EventsResponse
 
     /**
      * Obtener evento por ID

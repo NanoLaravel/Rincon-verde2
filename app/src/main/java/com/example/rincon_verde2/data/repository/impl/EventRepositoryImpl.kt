@@ -23,15 +23,23 @@ class EventRepositoryImpl @Inject constructor(
 
     override suspend fun getEvents(): List<Event> {
         return try {
-            Log.d(TAG, "Fetching all events from API")
-            val response = apiService.getEvents()
-            Log.d(TAG, "Events response: success=${response.success}, count=${response.data.size}")
+            val allEventDtos = mutableListOf<EventDto>()
+            var currentPage = 1
+            var lastPage: Int
             
-            val events = response.data.map { it.toDomain() }
+            Log.d(TAG, "Starting full sync of events...")
             
-            // Guardar en BD local
-            eventDao.insertEvents(response.data.map { it.toEntity() })
+            do {
+                val response = apiService.getEvents(page = currentPage, perPage = 50)
+                allEventDtos.addAll(response.data)
+                lastPage = response.lastPage ?: 1
+                currentPage++
+            } while (currentPage <= lastPage)
             
+            val events = allEventDtos.map { it.toDomain() }
+            eventDao.insertEvents(allEventDtos.map { it.toEntity() })
+            
+            Log.d(TAG, "Full sync complete. Total events: ${events.size}")
             events
         } catch (e: Exception) {
             Log.e(TAG, "Error fetching events: ${e.message}", e)
@@ -59,8 +67,8 @@ class EventRepositoryImpl @Inject constructor(
 
     override suspend fun getFeaturedEvents(): List<Event> {
         return try {
-            Log.d(TAG, "Fetching featured events from API")
-            val response = apiService.getFeaturedEvents()
+            Log.d(TAG, "Fetching featured events from API (page 1, per_page 100)")
+            val response = apiService.getFeaturedEvents(page = 1, perPage = 100)
             Log.d(TAG, "Featured events response: success=${response.success}, count=${response.data.size}")
             
             val events = response.data.map { it.toDomain() }
@@ -78,8 +86,8 @@ class EventRepositoryImpl @Inject constructor(
 
     override suspend fun getUpcomingEvents(): List<Event> {
         return try {
-            Log.d(TAG, "Fetching upcoming events from: https://api.nortedesantander.com/api/events/upcoming")
-            val response = apiService.getUpcomingEvents()
+            Log.d(TAG, "Fetching upcoming events from: https://api.nortedesantander.com/api/events/upcoming (per_page 100)")
+            val response = apiService.getUpcomingEvents(page = 1, perPage = 100)
             Log.d(TAG, "Upcoming events response: success=${response.success}, count=${response.data.size}")
             
             val events = response.data.map { it.toDomain() }
@@ -89,7 +97,7 @@ class EventRepositoryImpl @Inject constructor(
             Log.e(TAG, "Error fetching upcoming events: ${e.message}. Trying fallback to all events.", e)
             try {
                 // Si falla el endpoint de próximos (404), intentamos traer todos
-                val response = apiService.getEvents()
+                val response = apiService.getEvents(page = 1, perPage = 100)
                 val events = response.data.map { it.toDomain() }
                 eventDao.insertEvents(response.data.map { it.toEntity() })
                 events
@@ -103,8 +111,8 @@ class EventRepositoryImpl @Inject constructor(
 
     override suspend fun getOngoingEvents(): List<Event> {
         return try {
-            Log.d(TAG, "Fetching ongoing events from API")
-            val response = apiService.getOngoingEvents()
+            Log.d(TAG, "Fetching ongoing events from API (page 1, per_page 100)")
+            val response = apiService.getOngoingEvents(page = 1, perPage = 100)
             Log.d(TAG, "Ongoing events response: success=${response.success}, count=${response.data.size}")
             
             val events = response.data.map { it.toDomain() }
@@ -122,8 +130,8 @@ class EventRepositoryImpl @Inject constructor(
 
     override suspend fun getEventsByPlace(placeId: String): List<Event> {
         return try {
-            Log.d(TAG, "Fetching events by place: $placeId")
-            val response = apiService.getEventsByPlace(placeId)
+            Log.d(TAG, "Fetching events by place: $placeId (per_page 100)")
+            val response = apiService.getEventsByPlace(placeId, page = 1, perPage = 100)
             Log.d(TAG, "Events by place response: success=${response.success}, count=${response.data.size}")
             
             val events = response.data.map { it.toDomain() }

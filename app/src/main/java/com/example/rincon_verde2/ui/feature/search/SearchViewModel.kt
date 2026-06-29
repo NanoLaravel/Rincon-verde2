@@ -66,9 +66,17 @@ class SearchViewModel @Inject constructor(
                     Log.d("SearchViewModel", "  category=${_uiState.value.selectedCategory?.toString()?.lowercase()}")
                     Log.d("SearchViewModel", "====== performSearch() END LOG ======")
                     
+                    // Mapear categoría de la UI a término de la API
+                    val apiCategory = when(_uiState.value.selectedCategory) {
+                        PlaceCategory.EAT -> "restaurant"
+                        PlaceCategory.STAY -> "hotel"
+                        PlaceCategory.ACTIVITY -> "recreation"
+                        else -> _uiState.value.selectedCategory?.name?.lowercase()
+                    }
+                    
                     placeRepository.searchPlaces(
                         name = query.takeIf { it.isNotEmpty() },
-                        category = _uiState.value.selectedCategory?.toString()?.lowercase(),
+                        category = apiCategory,
                         minRating = minRating,
                         maxRating = maxRating,
                         type = null
