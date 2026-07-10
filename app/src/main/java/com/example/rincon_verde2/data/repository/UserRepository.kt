@@ -14,6 +14,11 @@ interface UserRepository {
     suspend fun register(email: String, password: String, displayName: String): Result<User>
 
     /**
+     * Login user with social provider (Google/Facebook)
+     */
+    suspend fun socialLogin(token: String, provider: String): Result<User>
+
+    /**
      * Logout user
      */
     suspend fun logout(): Result<Unit>

@@ -1,5 +1,6 @@
 package com.example.rincon_verde2.ui.feature.home.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,8 +34,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.rincon_verde2.R
 import com.example.rincon_verde2.ui.theme.Strings
 import com.example.rincon_verde2.ui.theme.Spacing
 import com.example.rincon_verde2.ui.theme.CornerRadius
@@ -48,8 +51,9 @@ fun HeaderSection(
   Box(
     modifier = modifier
   ) {
-    AsyncImage(
-      model = "https://images.unsplash.com/photo-1702055328255-515c1c2c9e81",
+
+    Image(
+      painterResource(id= R.drawable.foto_chinacota),
       contentDescription = Strings.homeHeaderImage,
       modifier = Modifier.fillMaxSize(),
       contentScale = ContentScale.Crop
@@ -61,8 +65,8 @@ fun HeaderSection(
         .background(
           brush = Brush.verticalGradient(
             colors = listOf(
-              Color.Black.copy(alpha = 0.5f),
-              Color.Black.copy(alpha = 0.3f),
+          //    Color.Black.copy(alpha = 0.5f),
+           //   Color.Black.copy(alpha = 0.3f),
               Color.Black.copy(alpha = 0.1f),
               Color.Transparent
             ),
@@ -75,35 +79,28 @@ fun HeaderSection(
     Column(
       modifier = Modifier
         .fillMaxSize()
-        .padding(horizontal = Spacing.spacingLg, vertical = Spacing.spacingXs),
-      verticalArrangement = Arrangement.SpaceBetween,
+        .padding(horizontal = Spacing.spacingLg, vertical = Spacing.spacingMd),
+      verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Spacer(modifier = Modifier.weight(1f))
+      Spacer(modifier = Modifier.height(Spacing.spacingLg))
 
-      Column {
-        Text(
-          text = Strings.homeDiscover,
-          style = MaterialTheme.typography.headlineLarge.copy(fontSize = 24.sp),
-          color = Color.White,
-          fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(bottom = Spacing.spacingXs)
-        )
+      Text(
+        text = Strings.homeDiscover,
+        style = MaterialTheme.typography.headlineLarge.copy(fontSize = 28.sp),
+        color = Color.White,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = Spacing.spacingXs)
+      )
 
-        Text(
-          text = Strings.homeSubtitle,
-          style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-          color = Color.White.copy(alpha = 0.95f),
-          textAlign = TextAlign.Center
-        )
-      }
+      Text(
+        text = Strings.homeSubtitle,
+        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+        color = Color.White.copy(alpha = 0.95f),
+        textAlign = TextAlign.Center
+      )
 
       Spacer(modifier = Modifier.height(Spacing.spacingMd))
-
-      SearchBar(
-        modifier = Modifier.fillMaxWidth()
-          .padding(horizontal = Spacing.spacingXxxl)
-      )
     }
   }
 }
@@ -116,46 +113,3 @@ fun HeaderSectionPreview() {
   }
 }
 
-@Composable
-fun SearchBar(
-  modifier: Modifier = Modifier
-) {
-  Box(
-    modifier = modifier
-      .height(ComponentSize.buttonLarge)
-      .clip(RoundedCornerShape(CornerRadius.radiusLg))
-      .background(Color.White.copy(alpha = 0.4f))
-      .padding(horizontal = Spacing.spacingXxxl),
-    contentAlignment = Alignment.CenterStart
-  ) {
-    Row(
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.spacedBy(Spacing.spacingMd)
-    ) {
-      Icon(
-        imageVector = Icons.Default.Search,
-        contentDescription = Strings.cdSearch,
-        tint = Color.White,
-        modifier = Modifier.size(IconSize.md)
-      )
-
-      BasicTextField(
-        value = "",
-        onValueChange = {},
-        modifier = Modifier.weight(1f),
-        textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-        visualTransformation = VisualTransformation.None,
-        decorationBox = { innerTextField ->
-          if ("" == "") {
-            Text(
-              text = Strings.homeSearch,
-              style = MaterialTheme.typography.bodyMedium,
-              color = Color.White
-            )
-          }
-          innerTextField()
-        }
-      )
-    }
-  }
-}

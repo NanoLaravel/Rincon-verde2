@@ -44,6 +44,10 @@ object NetworkModule {
         val authInterceptor = okhttp3.Interceptor { chain ->
             val original = chain.request()
             val builder = original.newBuilder()
+            
+            // Forzar respuesta en JSON para evitar recibir HTML en errores
+            builder.addHeader("Accept", "application/json")
+
             val token = tokenManager.getToken()
             if (token != null) {
                 builder.addHeader("Authorization", "Bearer $token")

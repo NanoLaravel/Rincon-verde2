@@ -96,9 +96,10 @@ fun TopRatedCard(
   Log.d("TopRatedCard", "${place.name} imageUrl=${place.imageUrl}")
   Card(
     onClick = onClick,
-    modifier = Modifier.width(120.dp)
-      .height(98.dp),
-    shape = RoundedCornerShape(CornerRadius.radiusLg),
+    modifier = Modifier
+      .width(124.dp)
+      .height(140.dp),
+    shape = RoundedCornerShape(CornerRadius.radiusMd),
     elevation = CardDefaults.cardElevation(defaultElevation = Elevation.low),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
   ) {
@@ -106,6 +107,7 @@ fun TopRatedCard(
       Box(
         modifier = Modifier
           .fillMaxWidth()
+          .height(110.dp)
       ) {
         AsyncImage(
           model = place.imageUrl,
@@ -114,12 +116,13 @@ fun TopRatedCard(
           contentScale = ContentScale.Crop
         )
 
+        // Rating badge - esquina superior derecha, más pequeño y redondeado
         Box(
           modifier = Modifier
-            .padding(Spacing.spacingMd)
-            .clip(RoundedCornerShape(CornerRadius.radiusXs))
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(horizontal = Spacing.spacingMd, vertical = Spacing.spacingXs)
+            .padding(Spacing.spacingSm)
+            .clip(RoundedCornerShape(CornerRadius.radiusLg))
+            .background(Color.Black.copy(alpha = 0.6f))
+            .padding(horizontal = Spacing.spacingSm, vertical = Spacing.spacingXxs)
             .align(androidx.compose.ui.Alignment.TopEnd)
         ) {
           Row(
@@ -128,10 +131,10 @@ fun TopRatedCard(
             Icon(
               imageVector = Icons.Default.Star,
               contentDescription = Strings.cdRating,
-              tint = Color.White,
-              modifier = Modifier.size(IconSize.xxs)
+              tint = Color.Yellow,
+              modifier = Modifier.size(10.dp)
             )
-            Spacer(modifier = Modifier.width(Spacing.spacingXxs))
+            Spacer(modifier = Modifier.width(2.dp))
             Text(
               text = "%.1f".format(place.rating),
               color = Color.White,
@@ -143,17 +146,17 @@ fun TopRatedCard(
       }
 
       Column(
-        modifier = Modifier.padding(Spacing.spacingMd)
+        modifier = Modifier.padding(Spacing.spacingSm)
       ) {
         Text(
           text = place.name,
-          style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+          style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
           color = MaterialTheme.colorScheme.onSurface,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis
         )
 
-        Spacer(modifier = Modifier.height(Spacing.spacingXs))
+        Spacer(modifier = Modifier.height(2.dp))
 
         Text(
           text = place.location,

@@ -34,6 +34,12 @@ data class RegisterRequest(
 )
 
 @Serializable
+data class SocialLoginRequest(
+    @SerialName("token") val token: String,
+    @SerialName("provider") val provider: String // "google" o "facebook"
+)
+
+@Serializable
 data class LoginResponse(
     @SerialName("success")
     val success: Boolean? = null,

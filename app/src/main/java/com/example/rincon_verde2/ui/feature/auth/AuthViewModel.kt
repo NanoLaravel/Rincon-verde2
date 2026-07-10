@@ -45,6 +45,23 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
+
+    fun socialLogin(token: String, provider: String) {
+        viewModelScope.launch {
+            try {
+                _authState.value = AuthState.Loading
+                val result = userRepository.socialLogin(token, provider)
+
+                if (result.isSuccess) {
+                    _authState.value = AuthState.Authenticated(result.getOrThrow())
+                } else {
+                    _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Social login failed")
+                }
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Error en autenticación social")
+            }
+        }
+    }
     
     fun signUp(email: String, password: String, displayName: String, confirmPassword: String) {
         when {

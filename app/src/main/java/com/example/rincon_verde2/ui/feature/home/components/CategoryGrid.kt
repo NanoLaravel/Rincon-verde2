@@ -71,7 +71,8 @@ fun CategoriesSection(
 
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+         //   horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             items(categoryConfig.filter { it.key != PlaceCategory.FAVORITES }.entries.toList()) { (category, config) ->
                 CategoryItem(

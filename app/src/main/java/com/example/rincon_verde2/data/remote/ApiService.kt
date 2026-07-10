@@ -7,6 +7,7 @@ import com.example.rincon_verde2.data.remote.dto.LoginResponse
 import com.example.rincon_verde2.data.remote.dto.PlaceDto
 import com.example.rincon_verde2.data.remote.dto.PlacesResponse
 import com.example.rincon_verde2.data.remote.dto.RegisterRequest
+import com.example.rincon_verde2.data.remote.dto.SocialLoginRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -156,6 +157,18 @@ interface ApiService {
      */
     @POST("register")
     suspend fun register(@Body request: RegisterRequest): LoginResponse
+
+    /**
+     * Login user with Google token
+     */
+    @POST("auth/google/token")
+    suspend fun loginWithGoogle(@Body request: Map<String, String>): LoginResponse
+
+    /**
+     * Login user with Facebook token
+     */
+    @POST("auth/facebook/token")
+    suspend fun loginWithFacebook(@Body request: Map<String, String>): LoginResponse
 
     /**
      * Logout user

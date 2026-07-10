@@ -91,6 +91,10 @@ dependencies {
   implementation(libs.hilt.navigation.compose)
   kapt(libs.hilt.compiler)
 
+  // Social Auth
+  implementation(libs.google.auth)
+  implementation(libs.facebook.auth)
+
   // Room
   kapt(libs.room.compiler)
 

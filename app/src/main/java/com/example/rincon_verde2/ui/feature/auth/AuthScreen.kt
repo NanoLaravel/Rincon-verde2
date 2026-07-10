@@ -1,37 +1,36 @@
 package com.example.rincon_verde2.ui.feature.auth
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+/* 
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+*/
 import com.example.rincon_verde2.domain.model.AuthState
 import com.example.rincon_verde2.ui.theme.Strings
 import com.example.rincon_verde2.ui.theme.Spacing
@@ -46,6 +45,54 @@ fun AuthScreen(
 ) {
     var isLoginMode by remember { mutableStateOf(mode == "login") }
     val authState by viewModel.authState.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    // Launcher para Google Sign-In
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            // Este idToken es el que se envía al backend
+            account.idToken?.let { token ->
+                viewModel.socialLogin(token, "google")
+            }
+        } catch (e: ApiException) {
+            android.util.Log.e("AuthScreen", "Google Sign-In failed", e)
+        }
+    }
+
+    // Configuración de Google
+    val gso = remember {
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("1099090565884-bjb9o2lp4nvvqq95k41stuj8rfifnvk5.apps.googleusercontent.com")
+            .requestEmail()
+            .build()
+    }
+    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
+
+    /*
+    // Manejo de Facebook
+    val callbackManager = remember { CallbackManager.Factory.create() }
+    DisposableEffect(Unit) {
+        try {
+            LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult) {
+                    val token = result.accessToken.token
+                    viewModel.socialLogin(token, "facebook")
+                }
+                override fun onCancel() { }
+                override fun onError(error: FacebookException) {
+                    android.util.Log.e("AuthScreen", "Facebook login error", error)
+                }
+            })
+        } catch (e: Exception) {
+            android.util.Log.e("AuthScreen", "Facebook callback registration failed", e)
+        }
+        onDispose { }
+    }
+    */
     
     // Observar cambios en authState
     LaunchedEffect(authState) {
@@ -57,9 +104,6 @@ fun AuthScreen(
                 } else {
                     onSignUpSuccess(user.email, user.displayName)
                 }
-            }
-            is AuthState.Error -> {
-                // El error se muestra en el formulario
             }
             else -> {}
         }
@@ -103,6 +147,61 @@ fun AuthScreen(
                 onToggleMode = { isLoginMode = true }
             )
         }
+
+        Spacer(modifier = Modifier.height(Spacing.spacingXl))
+        
+        SocialLoginSection(
+            onGoogleClick = { googleSignInLauncher.launch(googleSignInClient.signInIntent) }
+        )
+        
+        Spacer(modifier = Modifier.height(Spacing.spacingXl))
+    }
+}
+
+@Composable
+private fun SocialLoginSection(
+    onGoogleClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = Spacing.spacingMd)
+        ) {
+            HorizontalDivider(modifier = Modifier.weight(1f))
+            Text(
+                text = " o continuar con ",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = Spacing.spacingMd)
+            )
+            HorizontalDivider(modifier = Modifier.weight(1f))
+        }
+
+        OutlinedButton(
+            onClick = onGoogleClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Spacing.spacingXl),
+            shape = MaterialTheme.shapes.medium,
+            contentPadding = PaddingValues(vertical = 12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = com.example.rincon_verde2.R.drawable.ic_google),
+                    contentDescription = "Google",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Google", color = Color.Black)
+            }
+        }
     }
 }
 
@@ -114,14 +213,23 @@ private fun LoginForm(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
     
     OutlinedTextField(
         value = email,
         onValueChange = { email = it },
         label = { Text(Strings.authEmail) },
-        leadingIcon = { Icon(Icons.Filled.Email, contentDescription = Strings.cdEmail) },
+        leadingIcon = { Icon(Icons.Filled.Email, contentDescription = Strings.cdEmail, tint = MaterialTheme.colorScheme.primary) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        textStyle = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
         enabled = authState !is AuthState.Loading
     )
     
@@ -131,14 +239,28 @@ private fun LoginForm(
         value = password,
         onValueChange = { password = it },
         label = { Text(Strings.authPassword) },
-        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = Strings.cdPassword) },
-        visualTransformation = PasswordVisualTransformation(),
+        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = Strings.cdPassword, tint = MaterialTheme.colorScheme.primary) },
+        trailingIcon = {
+            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(imageVector = image, contentDescription = description, tint = Color.Gray)
+            }
+        },
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        textStyle = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
         enabled = authState !is AuthState.Loading
     )
     
-    // Mostrar error si existe
     if (authState is AuthState.Error) {
         Spacer(modifier = Modifier.height(Spacing.spacingLg))
         Text(
@@ -152,9 +274,7 @@ private fun LoginForm(
     Spacer(modifier = Modifier.height(Spacing.spacingXxxl))
     
     Button(
-        onClick = {
-            viewModel.login(email.trim(), password.trim())
-        },
+        onClick = { viewModel.login(email.trim(), password.trim()) },
         modifier = Modifier
             .fillMaxWidth()
             .height(Spacing.spacingMassive),
@@ -162,9 +282,8 @@ private fun LoginForm(
     ) {
         if (authState is AuthState.Loading) {
             CircularProgressIndicator(
-                modifier = Modifier
-                    .height(Spacing.spacingXl)
-                    .align(Alignment.CenterVertically)
+                modifier = Modifier.size(Spacing.spacingXl),
+                color = MaterialTheme.colorScheme.onPrimary
             )
         } else {
             Text(Strings.authLogin)
@@ -198,6 +317,8 @@ private fun SignUpForm(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
     
     OutlinedTextField(
         value = displayName,
@@ -205,6 +326,14 @@ private fun SignUpForm(
         label = { Text(Strings.authFullName) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        textStyle = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
         enabled = authState !is AuthState.Loading
     )
     
@@ -214,9 +343,17 @@ private fun SignUpForm(
         value = email,
         onValueChange = { email = it },
         label = { Text(Strings.authEmail) },
-        leadingIcon = { Icon(Icons.Filled.Email, contentDescription = Strings.cdEmail) },
+        leadingIcon = { Icon(Icons.Filled.Email, contentDescription = Strings.cdEmail, tint = MaterialTheme.colorScheme.primary) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        textStyle = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
         enabled = authState !is AuthState.Loading
     )
     
@@ -226,10 +363,25 @@ private fun SignUpForm(
         value = password,
         onValueChange = { password = it },
         label = { Text(Strings.authPassword) },
-        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = Strings.cdPassword) },
-        visualTransformation = PasswordVisualTransformation(),
+        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = Strings.cdPassword, tint = MaterialTheme.colorScheme.primary) },
+        trailingIcon = {
+            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(imageVector = image, contentDescription = description, tint = Color.Gray)
+            }
+        },
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        textStyle = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
         enabled = authState !is AuthState.Loading
     )
     
@@ -239,14 +391,28 @@ private fun SignUpForm(
         value = confirmPassword,
         onValueChange = { confirmPassword = it },
         label = { Text(Strings.authConfirmPassword) },
-        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = Strings.cdPassword) },
-        visualTransformation = PasswordVisualTransformation(),
+        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = Strings.cdPassword, tint = MaterialTheme.colorScheme.primary) },
+        trailingIcon = {
+            val image = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            val description = if (confirmPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                Icon(imageVector = image, contentDescription = description, tint = Color.Gray)
+            }
+        },
+        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        textStyle = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.primary
+        ),
         enabled = authState !is AuthState.Loading
     )
     
-    // Mostrar error si existe
     if (authState is AuthState.Error) {
         Spacer(modifier = Modifier.height(Spacing.spacingLg))
         Text(
@@ -272,9 +438,8 @@ private fun SignUpForm(
     ) {
         if (authState is AuthState.Loading) {
             CircularProgressIndicator(
-                modifier = Modifier
-                    .height(Spacing.spacingXl)
-                    .align(Alignment.CenterVertically)
+                modifier = Modifier.size(Spacing.spacingXl),
+                color = MaterialTheme.colorScheme.onPrimary
             )
         } else {
             Text(Strings.authSignUp)

@@ -25,7 +25,7 @@
     <!-- ============================================================
          HOME SCREEN
          ============================================================ -->
-    <string name="home_discover">Descubre CHINÁCOTA</string>
+    <string name="home_discover">Descubre Chinácota</string>
     <string name="home_subtitle">Clima perfecto • Naturaleza exuberante</string>
     <string name="home_search">Buscar</string>
     <string name="home_what_to_do">Qué Hacer</string>
@@ -259,4 +259,9 @@
     <!-- Page 3: Explore -->
     <string name="onboarding_explore_title">Reserva y explora</string>
     <string name="onboarding_explore_description">Reserva tu lugar favorito, explora nuevas experiencias y comparte tus reseñas con otros viajeros.</string>
+
+    <!-- Facebook Login (REEMPLAZAR CON TUS VALORES REALES) -->
+    <string name="facebook_app_id">1380588590645044</string>
+    <string name="fb_login_protocol_scheme">fb1380588590645044</string>
+    <string name="facebook_client_token">20fe822dd34972bb1878003bfbb277fc</string>
 </resources>

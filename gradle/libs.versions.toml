@@ -26,6 +26,8 @@ retrofit = "3.0.0"
 okhttp = "5.3.2"
 datastore = "1.2.0"
 kotlinx-serialization = "1.6.2"
+googleAuth = "21.2.0"
+facebookAuth = "17.0.0"
 
 # Testing
 junitExt = "1.1.5"
@@ -37,6 +39,10 @@ composeTest = "1.5.4"
 # Core Android
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+# Social Auth
+google-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "googleAuth" }
+facebook-auth = { module = "com.facebook.android:facebook-login", version.ref = "facebookAuth" }
 
 # AndroidX
 

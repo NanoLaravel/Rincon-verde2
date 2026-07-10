@@ -19,6 +19,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.rincon_verde2.ui.feature.home.CategoryConfig
 import com.example.rincon_verde2.ui.theme.Spacing
 import com.example.rincon_verde2.ui.theme.IconSize
@@ -46,13 +48,12 @@ fun CategoryItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .clickable { onClick() }
-            .width(ComponentSize.avatarXLarge)
-            .padding(Spacing.spacingXs)
-
+            .width(72.dp)
+            .padding(vertical = Spacing.spacingXs)
     ) {
         androidx.compose.foundation.layout.Box(
             modifier = Modifier
-                .size(ComponentSize.avatarXLarge)
+                .size(ComponentSize.avatarLarge)
                 .clip(CircleShape)
                 .background(config.color.copy(alpha = 0.8f)),
             contentAlignment = Alignment.Center
@@ -61,19 +62,20 @@ fun CategoryItem(
                 imageVector = config.icon,
                 contentDescription = config.title,
                 tint = Color.White,
-                modifier = Modifier.size(IconSize.xxl)
+                modifier = Modifier.size(IconSize.xl)
             )
         }
 
-        Spacer(modifier = Modifier.height(Spacing.spacingMd))
+        Spacer(modifier = Modifier.height(Spacing.spacingSm))
 
         Text(
             text = config.title,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            lineHeight = 12.sp
         )
     }
 }

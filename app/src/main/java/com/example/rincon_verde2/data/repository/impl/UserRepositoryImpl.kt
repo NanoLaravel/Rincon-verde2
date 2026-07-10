@@ -6,6 +6,7 @@ import com.example.rincon_verde2.data.remote.ApiService
 import com.example.rincon_verde2.data.remote.dto.LoginResponse
 import com.example.rincon_verde2.data.remote.dto.LoginRequest
 import com.example.rincon_verde2.data.remote.dto.RegisterRequest
+import com.example.rincon_verde2.data.remote.dto.SocialLoginRequest
 import com.example.rincon_verde2.data.remote.dto.UserDto
 import com.example.rincon_verde2.data.repository.UserRepository
 import com.example.rincon_verde2.domain.model.User
@@ -95,6 +96,36 @@ class UserRepositoryImpl @Inject constructor(
         println("DEBUG: API register failed with exception: ${e.javaClass.simpleName}: ${e.message}")
         e.printStackTrace()
         Result.failure(Exception("Registration failed: ${e.message}"))
+    }
+
+    override suspend fun socialLogin(token: String, provider: String): Result<User> = try {
+        println("DEBUG: Attempting social login with provider=$provider")
+        println("DEBUG: Token snippet: ${token.take(20)}...")
+        // El backend Laravel espera el campo "access_token"
+        val request = mapOf("access_token" to token)
+        
+        val response = when(provider.lowercase()) {
+            "google" -> {
+                println("DEBUG: Calling apiService.loginWithGoogle...")
+                apiService.loginWithGoogle(request)
+            }
+            "facebook" -> apiService.loginWithFacebook(request)
+            else -> throw Exception("Proveedor no soportado")
+        }
+        
+        println("DEBUG: Social API Response: $response")
+        
+        if (response.isValid()) {
+            val userEntity = response.user!!.toEntity()
+            userDao.insertUser(userEntity)
+            response.token?.let { tokenManager.saveToken(it) }
+            Result.success(response.user.toDomain())
+        } else {
+            Result.failure(Exception(response.message ?: "Social login failed"))
+        }
+    } catch (e: Exception) {
+        println("DEBUG: Social login failed: ${e.message}")
+        Result.failure(Exception("Social login failed: ${e.message}"))
     }
 
     /**
