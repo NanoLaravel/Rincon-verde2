@@ -48,12 +48,12 @@ fun CategoryItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .clickable { onClick() }
-            .width(72.dp)
+            .width(80.dp)
             .padding(vertical = Spacing.spacingXs)
     ) {
         androidx.compose.foundation.layout.Box(
             modifier = Modifier
-                .size(ComponentSize.avatarLarge)
+                .size(64.dp)
                 .clip(CircleShape)
                 .background(config.color.copy(alpha = 0.8f)),
             contentAlignment = Alignment.Center

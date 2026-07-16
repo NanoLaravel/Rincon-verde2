@@ -154,12 +154,19 @@ class EventRepositoryImpl @Inject constructor(
 
     // Mappers
     private fun EventDto.toDomain(): Event {
-        val fullImageUrl = if (!imagePath.isNullOrEmpty()) {
-            "$BASE_URL/storage/$imagePath"
-        } else {
-            ""
+        val allImageUrls = mutableListOf<String>()
+        if (!imagePath.isNullOrEmpty()) {
+            allImageUrls.add("$BASE_URL/storage/$imagePath")
         }
-        Log.d(TAG, "EventDto.toDomain: $title, image=$fullImageUrl")
+        images.forEach { img ->
+            val fullUrl = "$BASE_URL/storage/${img.path}"
+            if (!allImageUrls.contains(fullUrl)) {
+                allImageUrls.add(fullUrl)
+            }
+        }
+        
+        val finalImageUrl = allImageUrls.firstOrNull() ?: ""
+        Log.d(TAG, "EventDto.toDomain: $title, image=$finalImageUrl, total images=${allImageUrls.size}")
         
         val latStr = latitude?.jsonPrimitive?.content
         val lonStr = longitude?.jsonPrimitive?.content
@@ -170,7 +177,9 @@ class EventRepositoryImpl @Inject constructor(
             description = description ?: "",
             date = startDate?.substringBefore("T") ?: "",
             location = location ?: place?.name ?: listOfNotNull(latStr, lonStr).joinToString(","),
-            image = fullImageUrl
+            image = finalImageUrl,
+            imageUrls = allImageUrls,
+            price = price
         )
     }
 

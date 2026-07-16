@@ -3,12 +3,14 @@ package com.example.rincon_verde2.ui.feature.home
 import com.example.rincon_verde2.domain.model.Place
 import com.example.rincon_verde2.domain.model.Event
 import com.example.rincon_verde2.domain.model.PlaceCategory
+import com.example.rincon_verde2.domain.model.Product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -74,8 +76,13 @@ data class CategoryConfig(
 fun HomeScreen(
   places: List<Place>,
   events: List<Event>,
+  products: List<Product> = emptyList(),
+  isLoading: Boolean = false,
   favorites: List<Place>,
   onPlaceClick: (Place) -> Unit,
+  onProductClick: (Product) -> Unit = {},
+  onViewAllProductsClick: () -> Unit = {},
+  onEventClick: (Event) -> Unit = {},
   onCategoryClick: (PlaceCategory) -> Unit,
   onToggleFavorite: (String) -> Unit,
   onFilterClick: () -> Unit,
@@ -143,37 +150,51 @@ fun HomeScreen(
       .background(MaterialTheme.colorScheme.background)
       .verticalScroll(scrollState)
   ) {
-    // 1. Header estilo Figma
+    // 1. Header más pequeño
     HeaderSection(
       modifier = Modifier.padding(bottom = Spacing.spacingXs)
         .fillMaxWidth()
-        .height(ComponentSize.headerLarge)
+        .height(ComponentSize.headerMedium)
     )
 
-    // 2. Categorías en fila horizontal
+    // 2. Categorías en fila horizontal (más pequeño)
     CategoriesSection(
       categoryConfig = categoryConfig,
       favoritesCount = favorites.size,
       onCategoryClick = onCategoryClick,
       onFavoritesClick = { onNavigate("favorites") },
-      modifier = Modifier.padding(horizontal = Spacing.spacingMd, vertical = Spacing.spacingXs)
+      modifier = Modifier.padding(horizontal = Spacing.spacingMd, vertical = Spacing.spacingXxs)
     )
 
     Spacer(modifier = Modifier.height(Spacing.spacingMd))
 
-    // 3. Mejor Valorados
+    // 3. Mejor Valorados (Sin cambios en cards)
     TopRatedSection(
       places = topRatedPlaces,
       onPlaceClick = onPlaceClick,
+      modifier = Modifier.padding(horizontal = Spacing.spacingMd),
+      isLoading = isLoading
+    )
+
+    Spacer(modifier = Modifier.height(Spacing.spacingMd))
+
+    // 4. NUEVA SECCIÓN: Productos Locales
+    ProductSection(
+      products = products,
+      isLoading = isLoading,
+      onProductClick = onProductClick,
+      onViewAllClick = onViewAllProductsClick,
       modifier = Modifier.padding(horizontal = Spacing.spacingMd)
     )
 
     Spacer(modifier = Modifier.height(Spacing.spacingMd))
 
-    // 4. Próximos Eventos
+    // 5. Próximos Eventos (más pequeño)
     EventsSection(
       events = events,
-      modifier = Modifier.padding(horizontal = Spacing.spacingMd)
+      modifier = Modifier.padding(horizontal = Spacing.spacingMd),
+      isLoading = isLoading,
+      onEventClick = onEventClick
     )
 
     Spacer(modifier = Modifier.height(Spacing.spacingLg))

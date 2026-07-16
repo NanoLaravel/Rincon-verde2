@@ -5,10 +5,12 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -28,6 +30,12 @@ enum class BottomNavItem(
         label = "Inicio",
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home
+    ),
+    PRODUCTS(
+        route = "productList",
+        label = "Tienda",
+        selectedIcon = Icons.Filled.ShoppingBag,
+        unselectedIcon = Icons.Outlined.ShoppingBag
     ),
     SEARCH(
         route = "search",

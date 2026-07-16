@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Pool
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +43,14 @@ import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetail
 import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetailViewModel
 import com.example.rincon_verde2.ui.feature.placedetail.PlaceDetailUiState
 import com.example.rincon_verde2.ui.feature.placedetail.Review
+import com.example.rincon_verde2.ui.feature.productdetail.ProductDetailScreen
+import com.example.rincon_verde2.ui.feature.productdetail.ProductDetailViewModel
+import com.example.rincon_verde2.ui.feature.productdetail.ProductDetailUiState
+import com.example.rincon_verde2.ui.feature.productlist.ProductListScreen
+import com.example.rincon_verde2.ui.feature.productlist.ProductListViewModel
+import com.example.rincon_verde2.ui.feature.eventdetail.EventDetailScreen
+import com.example.rincon_verde2.ui.feature.eventdetail.EventDetailViewModel
+import com.example.rincon_verde2.ui.feature.eventdetail.EventDetailUiState
 import com.example.rincon_verde2.ui.feature.profile.ProfileScreen
 import com.example.rincon_verde2.ui.feature.search.SearchScreen
 import com.example.rincon_verde2.ui.feature.splash.SplashScreen
@@ -237,13 +247,41 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
           HomeScreen(
             places = uiState.value.places,
             events = uiState.value.events,
+            products = uiState.value.products,
+            isLoading = uiState.value.isLoading,
             favorites = uiState.value.favorites,
             onPlaceClick = { navController.navigate(Screen.PlaceDetail.createRoute(it.id)) },
+            onProductClick = { navController.navigate(Screen.ProductDetail.createRoute(it.id)) },
+            onViewAllProductsClick = { navController.navigate(Screen.ProductList.route) },
+            onEventClick = { navController.navigate(Screen.EventDetail.createRoute(it.id)) },
             onCategoryClick = { navController.navigate(Screen.PlaceList.createRoute(it.name)) },
             onToggleFavorite = { viewModel.toggleFavorite(it) },
             onFilterClick = { navController.navigate(Screen.Search.createRoute(0, autoOpen = false)) },
             onNavigate = { navController.navigate(it) },
             onBottomBarVisibilityChange = { visible -> bottomBarVisible.value = visible }
+          )
+        }
+      }
+
+      composable(Screen.ProductList.route) {
+        val bottomBarVisible = remember { mutableStateOf(true) }
+        RinconVerdeScaffold(
+          navController = navController, 
+          currentRoute = Screen.ProductList.route,
+          bottomBarVisible = bottomBarVisible.value
+        ) {
+          val viewModel: ProductListViewModel = hiltViewModel()
+          val uiState = viewModel.uiState.collectAsState()
+          
+          LaunchedEffect(Unit) {
+            viewModel.loadProducts()
+          }
+          
+          ProductListScreen(
+            products = uiState.value.products,
+            isLoading = uiState.value.isLoading,
+            onBackClick = { navController.navigateUp() },
+            onProductClick = { navController.navigate(Screen.ProductDetail.createRoute(it.id)) }
           )
         }
       }
@@ -407,6 +445,66 @@ fun RinconVerdeNavGraph(navController: NavHostController) {
           }
           is PlaceDetailUiState.Loading -> {
             // Mostrar loading - por ahora mostramos la pantalla vacía
+            Box(modifier = Modifier.fillMaxSize())
+          }
+        }
+      }
+
+      composable(
+        route = Screen.ProductDetail.route,
+        arguments = listOf(navArgument("productId") { type = NavType.StringType })
+      ) { backStackEntry ->
+        val viewModel: ProductDetailViewModel = hiltViewModel()
+        val uiState = viewModel.uiState.collectAsState()
+        val productId = backStackEntry.arguments?.getString("productId") ?: ""
+        
+        LaunchedEffect(productId) {
+          viewModel.loadProductDetail(productId)
+        }
+        
+        when (val state = uiState.value) {
+          is ProductDetailUiState.Success -> {
+            ProductDetailScreen(
+              product = state.product,
+              onBackClick = { navController.navigateUp() }
+            )
+          }
+          is ProductDetailUiState.Error -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+              Text(text = state.message, modifier = Modifier.align(Alignment.Center))
+            }
+          }
+          is ProductDetailUiState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize())
+          }
+        }
+      }
+
+      composable(
+        route = Screen.EventDetail.route,
+        arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+      ) { backStackEntry ->
+        val viewModel: EventDetailViewModel = hiltViewModel()
+        val uiState = viewModel.uiState.collectAsState()
+        val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+        
+        LaunchedEffect(eventId) {
+          viewModel.loadEventDetail(eventId)
+        }
+        
+        when (val state = uiState.value) {
+          is EventDetailUiState.Success -> {
+            EventDetailScreen(
+              event = state.event,
+              onBackClick = { navController.navigateUp() }
+            )
+          }
+          is EventDetailUiState.Error -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+              Text(text = state.message, modifier = Modifier.align(Alignment.Center))
+            }
+          }
+          is EventDetailUiState.Loading -> {
             Box(modifier = Modifier.fillMaxSize())
           }
         }

@@ -80,6 +80,8 @@ data class EventDto(
     val location: String? = null,
     @SerialName("image_path")
     val imagePath: String? = null,
+    @SerialName("images")
+    val images: List<EventImageDto> = emptyList(),
     @SerialName("is_featured")
     val isFeatured: Boolean = false,
     @SerialName("is_active")
@@ -101,6 +103,12 @@ data class EventPlaceDto(
     @SerialName("id") val id: Int,
     @SerialName("name") val name: String,
     @SerialName("address") val address: String? = null
+)
+
+@Serializable
+data class EventImageDto(
+    @SerialName("id") val id: Int,
+    @SerialName("path") val path: String
 )
 
 @Serializable

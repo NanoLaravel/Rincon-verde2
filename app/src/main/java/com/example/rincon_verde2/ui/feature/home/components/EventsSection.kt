@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event as EventIcon
 import androidx.compose.material.icons.filled.Place
@@ -35,13 +36,18 @@ import com.example.rincon_verde2.ui.theme.Strings
 import com.example.rincon_verde2.ui.theme.Spacing
 import com.example.rincon_verde2.ui.theme.CornerRadius
 import com.example.rincon_verde2.ui.theme.Elevation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.rincon_verde2.ui.theme.IconSize
 import com.example.rincon_verde2.ui.theme.ComponentSize
+import com.example.rincon_verde2.ui.components.common.ShimmerEffect
 
 @Composable
 fun EventsSection(
   events: List<Event>,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  isLoading: Boolean = false,
+  onEventClick: (Event) -> Unit = {}
 ) {
   Column(modifier = modifier) {
     Row(
@@ -69,16 +75,70 @@ fun EventsSection(
     Column(
       verticalArrangement = Arrangement.spacedBy(Spacing.spacingMd)
     ) {
-      events.take(2).forEach { event ->
-        EventCard(event = event)
+      if (isLoading) {
+        repeat(2) {
+          EventSkeleton()
+        }
+      } else {
+        events.take(2).forEach { event ->
+          EventCard(
+            event = event,
+            onClick = { onEventClick(event) }
+          )
+        }
       }
     }
   }
 }
 
 @Composable
-fun EventCard(event: Event) {
+fun EventSkeleton() {
   Card(
+    modifier = Modifier.fillMaxWidth(),
+    shape = RoundedCornerShape(CornerRadius.radiusMd),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+  ) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(Spacing.spacingMd),
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      ShimmerEffect(
+        modifier = Modifier
+          .width(ComponentSize.thumbnailMedium)
+          .height(ComponentSize.thumbnailSmall),
+        shape = RoundedCornerShape(CornerRadius.radiusSm)
+      )
+
+      Spacer(modifier = Modifier.width(Spacing.spacingMd))
+
+      Column(
+        modifier = Modifier.weight(1f)
+      ) {
+        ShimmerEffect(
+          modifier = Modifier
+            .fillMaxWidth(0.6f)
+            .height(14.dp)
+        )
+        Spacer(modifier = Modifier.height(Spacing.spacingXs))
+        ShimmerEffect(
+          modifier = Modifier
+            .fillMaxWidth(0.4f)
+            .height(10.dp)
+        )
+      }
+    }
+  }
+}
+
+@Composable
+fun EventCard(
+  event: Event,
+  onClick: () -> Unit = {}
+) {
+  Card(
+    onClick = onClick,
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(CornerRadius.radiusMd),
     elevation = CardDefaults.cardElevation(defaultElevation = Elevation.subtle),
@@ -87,15 +147,15 @@ fun EventCard(event: Event) {
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(Spacing.spacingMd),
+        .padding(10.dp),
       verticalAlignment = Alignment.CenterVertically
     ) {
       AsyncImage(
         model = event.image,
         contentDescription = event.title,
         modifier = Modifier
-          .width(ComponentSize.thumbnailLarge)
-          .height(ComponentSize.thumbnailMedium)
+          .width(64.dp)
+          .height(56.dp)
           .clip(RoundedCornerShape(CornerRadius.radiusSm)),
         contentScale = ContentScale.Crop
       )
@@ -107,14 +167,13 @@ fun EventCard(event: Event) {
       ) {
         Text(
           text = event.title,
-          style = MaterialTheme.typography.bodyMedium,
+          style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
           color = MaterialTheme.colorScheme.onSurface,
-          fontWeight = FontWeight.Medium,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis
         )
 
-        Spacer(modifier = Modifier.height(Spacing.spacingXs))
+        Spacer(modifier = Modifier.height(2.dp))
 
         Row(
           verticalAlignment = Alignment.CenterVertically
@@ -123,12 +182,12 @@ fun EventCard(event: Event) {
             imageVector = Icons.Default.Place,
             contentDescription = Strings.cdLocation,
             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            modifier = Modifier.width(IconSize.xs)
+            modifier = Modifier.size(12.dp)
           )
-          Spacer(modifier = Modifier.width(Spacing.spacingXs))
+          Spacer(modifier = Modifier.width(4.dp))
           Text(
             text = event.location,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

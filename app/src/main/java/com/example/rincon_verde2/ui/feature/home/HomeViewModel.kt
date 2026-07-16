@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rincon_verde2.data.repository.EventRepository
 import com.example.rincon_verde2.data.repository.PlaceRepository
+import com.example.rincon_verde2.data.repository.ProductRepository
 import com.example.rincon_verde2.domain.model.PlaceCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val placeRepository: PlaceRepository,
-    private val eventRepository: EventRepository
+    private val eventRepository: EventRepository,
+    private val productRepository: ProductRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -36,27 +38,25 @@ class HomeViewModel @Inject constructor(
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-                // Cargar lugares y eventos en paralelo
+                // Cargar lugares, eventos y productos en paralelo
                 val placesDeferred = async { placeRepository.getPlaces() }
                 val eventsDeferred = async { eventRepository.getUpcomingEvents() }
+                val productsDeferred = async { productRepository.getFeaturedProducts() }
                 val favoritesDeferred = async { placeRepository.getFavoritePlaces() }
 
                 val places = placesDeferred.await()
                 val events = eventsDeferred.await()
+                val products = productsDeferred.await()
                 val favorites = favoritesDeferred.await()
 
                 Log.d("HomeViewModel", "Loaded ${places.size} places")
                 Log.d("HomeViewModel", "Loaded ${events.size} events")
-                places.take(3).forEach { place ->
-                    Log.d("HomeViewModel", "Place: ${place.name}, imageUrl=${place.imageUrl}")
-                }
-                events.forEach { event ->
-                    Log.d("HomeViewModel", "Event: ${event.title}, date=${event.date}")
-                }
+                Log.d("HomeViewModel", "Loaded ${products.size} products")
 
                 _uiState.value = _uiState.value.copy(
                     places = places,
                     events = events,
+                    products = products,
                     favorites = favorites,
                     isLoading = false
                 )

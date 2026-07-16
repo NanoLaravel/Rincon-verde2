@@ -25,7 +25,9 @@ data class Event(
     val description: String,
     val date: String,
     val location: String,
-    val image: String
+    val image: String,
+    val imageUrls: List<String> = emptyList(),
+    val price: String? = null
 )
 
 data class ContactInfo(

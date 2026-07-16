@@ -43,12 +43,14 @@ import com.example.rincon_verde2.ui.theme.CornerRadius
 import com.example.rincon_verde2.ui.theme.Elevation
 import com.example.rincon_verde2.ui.theme.IconSize
 import com.example.rincon_verde2.ui.theme.ComponentSize
+import com.example.rincon_verde2.ui.components.common.ShimmerEffect
 
 @Composable
 fun TopRatedSection(
   places: List<Place>,
   onPlaceClick: (Place) -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  isLoading: Boolean = false
 ) {
   Column(modifier = modifier) {
     Row(
@@ -62,14 +64,6 @@ fun TopRatedSection(
         color = MaterialTheme.colorScheme.onBackground,
         fontWeight = FontWeight.SemiBold
       )
-
-      Text(
-        text = Strings.homeViewAll,
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.primary,
-        fontWeight = FontWeight.Medium,
-        modifier = Modifier.clickable { /* Navegar a todos */ }
-      )
     }
 
     Spacer(modifier = Modifier.height(Spacing.spacingMd))
@@ -78,12 +72,52 @@ fun TopRatedSection(
       horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(Spacing.spacingMd),
       modifier = Modifier.fillMaxWidth()
     ) {
-      items(places) { place ->
-        TopRatedCard(
-          place = place,
-          onClick = { onPlaceClick(place) }
-        )
+      if (isLoading) {
+        items(3) {
+          TopRatedSkeleton()
+        }
+      } else {
+        items(places) { place ->
+          TopRatedCard(
+            place = place,
+            onClick = { onPlaceClick(place) }
+          )
+        }
       }
+    }
+  }
+}
+
+@Composable
+fun TopRatedSkeleton() {
+  Card(
+    modifier = Modifier
+      .width(140.dp)
+      .height(180.dp),
+    shape = RoundedCornerShape(CornerRadius.radiusMd),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+  ) {
+    Column {
+      ShimmerEffect(
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(115.dp),
+        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+      )
+      Spacer(modifier = Modifier.height(8.dp))
+      ShimmerEffect(
+        modifier = Modifier
+          .padding(horizontal = 8.dp)
+          .fillMaxWidth(0.7f)
+          .height(14.dp)
+      )
+      Spacer(modifier = Modifier.height(4.dp))
+      ShimmerEffect(
+        modifier = Modifier
+          .padding(horizontal = 8.dp)
+          .fillMaxWidth(0.5f)
+          .height(10.dp)
+      )
     }
   }
 }
@@ -97,8 +131,8 @@ fun TopRatedCard(
   Card(
     onClick = onClick,
     modifier = Modifier
-      .width(124.dp)
-      .height(140.dp),
+      .width(140.dp)
+      .height(180.dp),
     shape = RoundedCornerShape(CornerRadius.radiusMd),
     elevation = CardDefaults.cardElevation(defaultElevation = Elevation.low),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -107,7 +141,7 @@ fun TopRatedCard(
       Box(
         modifier = Modifier
           .fillMaxWidth()
-          .height(110.dp)
+          .height(115.dp)
       ) {
         AsyncImage(
           model = place.imageUrl,

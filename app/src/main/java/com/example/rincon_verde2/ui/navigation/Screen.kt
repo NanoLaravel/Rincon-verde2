@@ -16,8 +16,15 @@ sealed class Screen(val route: String) {
   data object PlaceDetail : Screen("placeDetail/{placeId}") {
     fun createRoute(placeId: String) = "placeDetail/$placeId"
   }
+  data object ProductDetail : Screen("productDetail/{productId}") {
+    fun createRoute(productId: String) = "productDetail/$productId"
+  }
+  data object EventDetail : Screen("eventDetail/{eventId}") {
+    fun createRoute(eventId: String) = "eventDetail/$eventId"
+  }
   data object Filters : Screen("filters")
   data object Favorites : Screen("favorites")
+  data object ProductList : Screen("productList")
   data object Profile : Screen("profile")
   data object EditProfile : Screen("editProfile")
 }

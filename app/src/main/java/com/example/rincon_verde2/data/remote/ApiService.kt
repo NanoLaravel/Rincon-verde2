@@ -6,6 +6,8 @@ import com.example.rincon_verde2.data.remote.dto.LoginRequest
 import com.example.rincon_verde2.data.remote.dto.LoginResponse
 import com.example.rincon_verde2.data.remote.dto.PlaceDto
 import com.example.rincon_verde2.data.remote.dto.PlacesResponse
+import com.example.rincon_verde2.data.remote.dto.ProductDto
+import com.example.rincon_verde2.data.remote.dto.ProductsResponse
 import com.example.rincon_verde2.data.remote.dto.RegisterRequest
 import com.example.rincon_verde2.data.remote.dto.SocialLoginRequest
 import retrofit2.http.Body
@@ -89,6 +91,29 @@ interface ApiService {
      */
     @GET("places/{placeId}/reviews")
     suspend fun getPlaceReviews(@Path("placeId") placeId: String): Any
+
+    // ============= PRODUCTS =============
+
+    /**
+     * Obtener productos locales destacados
+     */
+    @GET("local-products/featured")
+    suspend fun getFeaturedProducts(): List<ProductDto>
+
+    /**
+     * Obtener todos los productos locales con paginación
+     */
+    @GET("local-products")
+    suspend fun getProducts(
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 100
+    ): ProductsResponse
+
+    /**
+     * Obtener producto por ID
+     */
+    @GET("local-products/{id}")
+    suspend fun getProductById(@Path("id") productId: String): ProductDto
 
     // ============= EVENTS =============
 
